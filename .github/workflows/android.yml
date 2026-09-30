@@ -25,7 +25,12 @@ jobs:
           java-version: '21'
           cache: gradle
 
-      - uses: android-actions/setup-android@v3
+      # The runner image already ships the Android SDK; just make sure its
+      # licences are accepted so AGP can provision the required platform.
+      - name: Accept Android SDK licenses
+        run: |
+          SDKMANAGER=$(ls "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | sort -V | tail -1)
+          if [ -n "$SDKMANAGER" ]; then yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true; fi
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
