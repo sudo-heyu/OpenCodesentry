@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/icon.png" width="116" alt="OpenCode Sentry">
+<img src="https://cdn.jsdelivr.net/gh/sudo-heyu/OpenCodesentry@main/docs/icon.png" width="116" alt="OpenCode Sentry">
 
 # OpenCode Sentry · 哨兵
 
@@ -65,12 +65,12 @@ question, or fails.
 
 | 状态 | 选项 | 配置 |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/status-overview.png" width="235"> | <img src="docs/screenshots/options-events.png" width="235"> | <img src="docs/screenshots/config-tailscale.png" width="235"> |
+| <img src="https://cdn.jsdelivr.net/gh/sudo-heyu/OpenCodesentry@main/docs/screenshots/status-overview.png" width="235"> | <img src="https://cdn.jsdelivr.net/gh/sudo-heyu/OpenCodesentry@main/docs/screenshots/options-events.png" width="235"> | <img src="https://cdn.jsdelivr.net/gh/sudo-heyu/OpenCodesentry@main/docs/screenshots/config-tailscale.png" width="235"> |
 | 守护状态 · 连接通道 · 权限自检 | 提醒哪些事件、怎么提醒 | 填两端地址，点一下自动检测本机 IP |
 
 | 权限自检 · 运行诊断 | 语音 / 音量 / 最长响铃 | 凭据 · 连接测试 |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/status-diagnostics.png" width="235"> | <img src="docs/screenshots/options-voice.png" width="235"> | <img src="docs/screenshots/config-credentials.png" width="235"> |
+| <img src="https://cdn.jsdelivr.net/gh/sudo-heyu/OpenCodesentry@main/docs/screenshots/status-diagnostics.png" width="235"> | <img src="https://cdn.jsdelivr.net/gh/sudo-heyu/OpenCodesentry@main/docs/screenshots/options-voice.png" width="235"> | <img src="https://cdn.jsdelivr.net/gh/sudo-heyu/OpenCodesentry@main/docs/screenshots/config-credentials.png" width="235"> |
 | 每一项都能一键跳到系统设置 | 4 种音色，切换即试听 | 测试连接，结果实时显示 |
 
 <details>
@@ -81,7 +81,7 @@ question, or fails.
 
 | 开启「始终开启 VPN」 |
 |:---:|
-| <img src="docs/screenshots/tailscale-network.png" width="300"> |
+| <img src="https://cdn.jsdelivr.net/gh/sudo-heyu/OpenCodesentry@main/docs/screenshots/tailscale-network.png" width="300"> |
 
 </details>
 
