@@ -1,0 +1,13 @@
+OpenCode Sentry
+Copyright (c) 2026 OpenCode Sentry contributors
+
+This is an independent, community-built companion for OpenCode. It is NOT
+affiliated with, endorsed by, sponsored by, or built by the OpenCode team /
+Anomaly.
+
+- The application mark (app/src/main/res/drawable/ic_launcher_foreground.xml,
+  ic_launcher_monochrome.xml, ic_logo_mark.xml, ic_notification.xml and the
+  derived assets under docs/) is derived from the OpenCode logo
+  (https://opencode.ai) and is used solely to indicate interoperability.
+- The names "OpenCode" and "opencode" are used descriptively to describe what
+  this project works with.

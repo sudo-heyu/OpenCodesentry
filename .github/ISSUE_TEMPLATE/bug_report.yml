@@ -1,0 +1,68 @@
+name: Bug report
+description: Something is not working as expected
+labels: [ bug ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please **do not paste passwords, tokens or
+        tailnet addresses** — redact them.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: A clear description of the bug, and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device & ROM
+      placeholder: e.g. iQOO 12 / OriginOS 5, Pixel 8 / Android 15
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: From the release tag, or the commit hash if you built it yourself.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Alerts never arrive
+        - Alerts arrive late / not with screen off
+        - Service gets killed
+        - Voice / sound / vibration
+        - Connection setup (bridge / Tailscale)
+        - UI
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: "`adb logcat -s OpenCodeNotify` (redact anything private)."
+      render: text
+    validations:
+      required: false

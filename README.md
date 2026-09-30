@@ -14,7 +14,40 @@ OpenCode 的安卓提醒端 —— 任务完成、需要授权、需要你回答
 ![Tailscale](https://img.shields.io/badge/Tailscale-tailnet-242424?logo=tailscale&logoColor=white)
 ![No cloud](https://img.shields.io/badge/数据-不经第三方-1B7F4B)
 
+[![Android CI](https://github.com/sudo-heyu/OpenCodesentry/actions/workflows/android.yml/badge.svg)](https://github.com/sudo-heyu/OpenCodesentry/actions/workflows/android.yml)
+[![Release](https://img.shields.io/github/v/release/sudo-heyu/OpenCodesentry?sort=semver)](https://github.com/sudo-heyu/OpenCodesentry/releases)
+[![License](https://img.shields.io/github/license/sudo-heyu/OpenCodesentry)](LICENSE)
+
 </div>
+
+---
+
+## English
+
+**OpenCode Sentry** is an Android notification companion for the
+[OpenCode](https://opencode.ai) coding agent. A foreground service holds an SSE
+connection to your own machine — exposed over Tailscale by a tiny Python bridge —
+and alerts you the moment a task finishes, blocks on a permission prompt, asks a
+question, or fails.
+
+- ⚡ **Instant** — one long-lived SSE connection; events arrive in under a second.
+- 🔔 **Loud with the screen off** — notification + vibration + ringtone + voice.
+- ♻️ **Self-healing** — accessibility keeper / persistent Job / exact-alarm
+  watchdog; survives the "one-tap clean" of aggressive vendor ROMs.
+- 🔒 **Your network only** — direct over Tailscale (WireGuard); no third-party
+  server and no telemetry.
+- 🗣️ **Offline voice** — four pre-generated Chinese TTS voices shipped in the APK.
+
+**Install:** Android 12+ (`minSdk 31`). Grab the APK from
+[Releases](https://github.com/sudo-heyu/OpenCodesentry/releases), or build it with
+`./gradlew assembleDebug`. The desktop bridge is documented in
+[`tools/bridge/`](tools/bridge/README.md).
+
+> [!IMPORTANT]
+> **Not affiliated with OpenCode.** This is an independent, community-built
+> project. “OpenCode” is used only to describe interoperability, and the app mark
+> is derived from the OpenCode logo solely to indicate that. It is not built by,
+> endorsed by, or affiliated with the OpenCode team / Anomaly. See [`NOTICE`](NOTICE).
 
 ---
 

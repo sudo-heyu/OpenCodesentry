@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question / setup help
+    url: https://github.com/sudo-heyu/OpenCodesentry/discussions
+    about: Ask usage questions and share setups here instead of opening an issue.
