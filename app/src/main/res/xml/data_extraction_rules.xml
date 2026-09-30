@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+   Data extraction rules (Android 12+). The app stores the OpenCode service
+   password in the SharedPreferences file below, so it is excluded from cloud
+   backup and device-to-device transfer: a credential should not leave the
+   device it was typed on. (It is also encrypted at rest, but the Keystore key
+   does not travel with a backup — and the name from older builds is excluded
+   too.)
+   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="opencode_notify_secure.xml" />
+        <exclude domain="sharedpref" path="opencode_notify.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="opencode_notify_secure.xml" />
+        <exclude domain="sharedpref" path="opencode_notify.xml" />
+    </device-transfer>
+</data-extraction-rules>

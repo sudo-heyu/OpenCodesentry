@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The opencode mark, scaled for the header badge.
+  Same geometry as ic_launcher_foreground / ic_notification, but drawn a touch
+  smaller and exactly centred inside the 24dp viewport so it reads as a light,
+  deliberate glyph rather than filling the tile.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group
+        android:scaleX="0.15"
+        android:scaleY="0.15"
+        android:translateX="7.07"
+        android:translateY="3.38">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M49.2857,32.8573H16.4286V82.143H49.2857V32.8573ZM65.7143,98.5716H0V16.4287H65.7143V98.5716Z" />
+    </group>
+</vector>

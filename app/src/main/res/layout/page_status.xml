@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/screen_h_padding"
+        android:paddingTop="@dimen/screen_top_padding"
+        android:paddingEnd="@dimen/screen_h_padding"
+        android:paddingBottom="@dimen/screen_bottom_padding">
+
+        <!-- ============ 守护状态 ============ -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/CardContainer"
+            android:layout_marginTop="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:id="@+id/viewStatusDot"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:background="@drawable/status_dot" />
+
+                    <TextView
+                        android:id="@+id/tvGuardState"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="已停止"
+                        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvGuardHint"
+                    style="@style/RowSubtitle"
+                    android:text="打开下面的开关即可常驻后台" />
+
+                <View style="@style/Divider" />
+
+                <LinearLayout style="@style/ListRow">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/RowTitle"
+                            android:text="启用守护服务" />
+
+                        <TextView
+                            style="@style/RowSubtitle"
+                            android:text="前台常驻，熄屏也能收到提醒" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/swEnabled"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvGuardWarning"
+                    style="@style/RowSubtitle"
+                    android:layout_marginTop="6dp"
+                    android:textSize="12sp"
+                    android:text="本应用已从「最近任务」中隐藏，所以不存在被划掉的问题（需要打开时请点桌面图标）。若系统仍清理了它，无障碍守护与持久任务会在后台自动把它拉回来。" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ============ 连接通道 ============ -->
+        <com.google.android.material.card.MaterialCardView style="@style/CardContainer">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    style="@style/CardTitle"
+                    android:text="连接通道" />
+
+                <TextView
+                    android:id="@+id/tvConnection"
+                    style="@style/RowSubtitle"
+                    android:text="未启动" />
+
+                <TextView
+                    android:id="@+id/tvLastEvent"
+                    style="@style/RowSubtitle"
+                    android:text="最近提醒：—" />
+
+                <TextView
+                    android:id="@+id/tvLastError"
+                    style="@style/RowSubtitle"
+                    android:textColor="@color/state_bad"
+                    android:visibility="gone" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    style="@style/RowTitle"
+                    android:text="本机 tailnet 地址" />
+
+                <TextView
+                    android:id="@+id/tvStatusPhoneIp"
+                    style="@style/RowSubtitle" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ============ 权限自检 ============ -->
+        <com.google.android.material.card.MaterialCardView style="@style/CardContainer">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    style="@style/CardTitle"
+                    android:text="保活与权限自检" />
+
+                <TextView
+                    style="@style/CardSubtitle"
+                    android:text="点任意一行去系统设置里处理" />
+
+                <LinearLayout
+                    android:id="@+id/rowKeeper"
+                    style="@style/ListRow"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/RowTitle"
+                            android:text="无障碍守护（关键）" />
+
+                        <TextView
+                            style="@style/RowSubtitle"
+                            android:text="被系统清理后自动复活；不读取屏幕内容" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvKeeperState"
+                        style="@style/StatusChip" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/rowAutostart"
+                    style="@style/ListRow"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvAutostartTitle"
+                            style="@style/RowTitle"
+                            android:text="自启动" />
+
+                        <TextView
+                            style="@style/RowSubtitle"
+                            android:text="系统不提供查询接口，本应用无法检测；若你已开启，忽略本行即可" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvAutostartState"
+                        style="@style/StatusChip" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/rowHighPower"
+                    style="@style/ListRow"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvBackgroundTitle"
+                            style="@style/RowTitle"
+                            android:text="后台运行" />
+
+                        <TextView
+                            style="@style/RowSubtitle"
+                            android:text="在系统设置里允许本应用后台常驻；若你已开启，忽略本行即可" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvHighPowerState"
+                        style="@style/StatusChip" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/rowBattery"
+                    style="@style/ListRow"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/RowTitle"
+                            android:text="电池优化白名单" />
+
+                        <TextView
+                            style="@style/RowSubtitle"
+                            android:text="关键：Doze 期间仍能收发网络，也是后台自动重启的系统豁免" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvBatteryState"
+                        style="@style/StatusChip" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/rowNotify"
+                    style="@style/ListRow"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/RowTitle"
+                            android:text="通知权限" />
+
+                        <TextView
+                            style="@style/RowSubtitle"
+                            android:text="没有它无法弹出任何提醒" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvNotifyState"
+                        style="@style/StatusChip" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/rowDnd"
+                    style="@style/ListRow"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/RowTitle"
+                            android:text="勿扰穿透（可选）" />
+
+                        <TextView
+                            style="@style/RowSubtitle"
+                            android:text="开启勿扰时仍能提醒你" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvDndState"
+                        style="@style/StatusChip" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ListRow">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/RowTitle"
+                            android:text="精确闹钟" />
+
+                        <TextView
+                            style="@style/RowSubtitle"
+                            android:text="看门狗定时唤醒的能力" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvExactState"
+                        style="@style/StatusChip" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ============ 运行诊断 ============ -->
+        <com.google.android.material.card.MaterialCardView style="@style/CardContainer">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    style="@style/CardTitle"
+                    android:text="运行诊断" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:minHeight="36dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/StatLabel"
+                        android:text="守护运行时长" />
+
+                    <TextView
+                        android:id="@+id/tvDiagUptime"
+                        style="@style/StatValue" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:minHeight="36dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/StatLabel"
+                        android:text="自动复活次数" />
+
+                    <TextView
+                        android:id="@+id/tvDiagHeals"
+                        style="@style/StatValue" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:minHeight="36dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/StatLabel"
+                        android:text="无障碍心跳" />
+
+                    <TextView
+                        android:id="@+id/tvDiagHeartbeat"
+                        style="@style/StatValue" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnClearDiagnostics"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_gravity="end"
+                    android:text="清零计数" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTestAlert"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="发送测试提醒" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnStopAlert"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="停止响铃" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

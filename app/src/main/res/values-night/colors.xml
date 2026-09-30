@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brighter indicators so they stay legible on a dark surface. -->
+    <color name="state_ok">#6DD58C</color>
+    <color name="state_bad">#FFB4AB</color>
+    <color name="state_idle">#8E9099</color>
+
+    <!-- Dark app surfaces (see values/colors.xml). Cards and bars sit a step
+         above the page so the hierarchy survives the mode flip. -->
+    <color name="app_background">#0F1014</color>
+    <color name="app_surface">#1A1B20</color>
+    <color name="app_surface_muted">#23252B</color>
+    <color name="app_outline">#2C2E35</color>
+
+    <!-- Dark fallback scheme (see values/colors.xml). -->
+    <color name="m3_primary">#AEC6FF</color>
+    <color name="m3_on_primary">#002E69</color>
+    <color name="m3_primary_container">#004494</color>
+    <color name="m3_on_primary_container">#D9E2FF</color>
+
+    <color name="m3_secondary">#BEC6DC</color>
+    <color name="m3_on_secondary">#282F42</color>
+    <color name="m3_secondary_container">#3E4759</color>
+    <color name="m3_on_secondary_container">#DAE2F9</color>
+
+    <color name="m3_surface">#111318</color>
+    <color name="m3_on_surface">#E3E2E9</color>
+    <color name="m3_surface_variant">#44464F</color>
+    <color name="m3_on_surface_variant">#C4C6D0</color>
+    <color name="m3_outline">#8E9099</color>
+    <color name="m3_outline_variant">#44464F</color>
+
+    <color name="m3_surface_container_lowest">#0C0E13</color>
+    <color name="m3_surface_container_low">#191C20</color>
+    <color name="m3_surface_container">#1D2024</color>
+    <color name="m3_surface_container_high">#282A2F</color>
+    <color name="m3_surface_container_highest">#33353A</color>
+</resources>

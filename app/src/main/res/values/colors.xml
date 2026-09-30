@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!--
+      Self-check indicators on the status page. These are deliberately outside
+      the Material scheme: green/red must read the same whether or not the
+      device supports Material You dynamic colour.
+    -->
+    <color name="state_ok">#1B7F4B</color>
+    <color name="state_bad">#C0392B</color>
+    <color name="state_idle">#9E9E9E</color>
+
+    <!--
+      App surfaces. Kept outside the Material scheme on purpose: the page /
+      card / bar hierarchy should read the same on every device, while the
+      accent (colorPrimary) still comes from Material You when available.
+      Night overrides live in values-night/colors.xml.
+    -->
+    <color name="app_background">#F4F5FA</color>
+    <color name="app_surface">#FFFFFF</color>
+    <color name="app_surface_muted">#EDEFF6</color>
+    <color name="app_outline">#E3E5EC</color>
+
+    <!--
+      Fallback colour scheme, used only when Material You is unavailable.
+      A calm indigo/blue that matches the app's "quiet daemon" character.
+      Night overrides live in values-night/colors.xml.
+    -->
+    <color name="m3_primary">#1B5AC4</color>
+    <color name="m3_on_primary">#FFFFFF</color>
+    <color name="m3_primary_container">#D9E2FF</color>
+    <color name="m3_on_primary_container">#001A41</color>
+
+    <color name="m3_secondary">#565E71</color>
+    <color name="m3_on_secondary">#FFFFFF</color>
+    <color name="m3_secondary_container">#DAE2F9</color>
+    <color name="m3_on_secondary_container">#131C2B</color>
+
+    <color name="m3_surface">#FAF9FF</color>
+    <color name="m3_on_surface">#1A1B20</color>
+    <color name="m3_surface_variant">#E1E2EC</color>
+    <color name="m3_on_surface_variant">#44464F</color>
+    <color name="m3_outline">#74777F</color>
+    <color name="m3_outline_variant">#C4C6D0</color>
+
+    <color name="m3_surface_container_lowest">#FFFFFF</color>
+    <color name="m3_surface_container_low">#F4F3FA</color>
+    <color name="m3_surface_container">#EEEDF4</color>
+    <color name="m3_surface_container_high">#E8E7EF</color>
+    <color name="m3_surface_container_highest">#E2E2E9</color>
+</resources>

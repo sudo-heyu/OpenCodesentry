@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Bottom-bar item colour: the selected tab is tinted with the accent, the rest
+  stay muted. This is the whole active treatment — no pill behind the icon.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:color="?attr/colorPrimary"
+        android:state_checked="true" />
+    <item android:color="?attr/colorOnSurfaceVariant" />
+</selector>

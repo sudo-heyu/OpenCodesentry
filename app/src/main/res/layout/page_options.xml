@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/screen_h_padding"
+        android:paddingTop="@dimen/screen_top_padding"
+        android:paddingEnd="@dimen/screen_h_padding"
+        android:paddingBottom="@dimen/screen_bottom_padding">
+
+        <!-- ============ 提醒事件 ============ -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/CardContainer"
+            android:layout_marginTop="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    style="@style/CardTitle"
+                    android:text="提醒事件" />
+
+                <TextView
+                    style="@style/CardSubtitle"
+                    android:text="选择哪些情况需要打断你" />
+
+                <LinearLayout style="@style/ListRow">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/RowTitle"
+                            android:text="任务完成" />
+
+                        <TextView
+                            style="@style/RowSubtitle"
+                            android:text="一轮对话结束、等你下一步" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/swEventDone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ListRow">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/RowTitle"
+                            android:text="需要授权" />
+
+                        <TextView
+                            style="@style/RowSubtitle"
+                            android:text="OpenCode 请求工具/文件权限" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/swEventPermission"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ListRow">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/RowTitle"
+                            android:text="需要你回答" />
+
+                        <TextView
+                            style="@style/RowSubtitle"
+                            android:text="OpenCode 抛出了需要填写的问题" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/swEventQuestion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ListRow">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/RowTitle"
+                            android:text="失败 / 中断" />
+
+                        <TextView
+                            style="@style/RowSubtitle"
+                            android:text="执行报错或被中止" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/swEventError"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ============ 提示方式 ============ -->
+        <com.google.android.material.card.MaterialCardView style="@style/CardContainer">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    style="@style/CardTitle"
+                    android:text="提示方式" />
+
+                <LinearLayout style="@style/ListRow">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/RowTitle"
+                            android:text="震动" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/swVibrate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ListRow">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/RowTitle"
+                            android:text="提示音（铃声）" />
+
+                        <TextView
+                            android:id="@+id/tvSound"
+                            style="@style/RowSubtitle" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/swSound"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPickSound"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="选择提示音" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPreviewAlert"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="试听提醒" />
+                </LinearLayout>
+
+                <View style="@style/Divider" />
+
+                <LinearLayout style="@style/ListRow">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/RowTitle"
+                            android:text="语音播报" />
+
+                        <TextView
+                            style="@style/RowSubtitle"
+                            android:text="Edge TTS 预录，离线可用" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/swVoice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilVoice"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="音色（切换即试听）">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/acVoice"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/tvVolume"
+                    style="@style/RowSubtitle"
+                    android:layout_marginTop="16dp"
+                    android:text="音量" />
+
+                <SeekBar
+                    android:id="@+id/sbVolume"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="100" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilAlertMax"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="最长响铃（秒）"
+                    app:endIconMode="none"
+                    app:helperText="到点自动停止，避免一直响；填 0 表示不限">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etAlertMax"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnStopAlert"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="4dp"
+                    android:text="立即停止响铃" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ============ 语音预览 ============ -->
+        <com.google.android.material.card.MaterialCardView style="@style/CardContainer">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    style="@style/CardTitle"
+                    android:text="语音预览" />
+
+                <TextView
+                    style="@style/CardSubtitle"
+                    android:text="点右侧 ▶ 试听该场景的播报" />
+
+                <LinearLayout style="@style/ListRow">
+
+                    <TextView
+                        style="@style/RowTitle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="任务完成" />
+
+                    <ImageButton
+                        android:id="@+id/btnPreviewDone"
+                        style="@style/PreviewButton"
+                        android:contentDescription="试听 任务完成"
+                        android:src="@drawable/ic_play"
+                        android:tint="?attr/colorPrimary" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ListRow">
+
+                    <TextView
+                        style="@style/RowTitle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="需要授权" />
+
+                    <ImageButton
+                        android:id="@+id/btnPreviewPermission"
+                        style="@style/PreviewButton"
+                        android:contentDescription="试听 需要授权"
+                        android:src="@drawable/ic_play"
+                        android:tint="?attr/colorPrimary" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ListRow">
+
+                    <TextView
+                        style="@style/RowTitle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="需要你回答" />
+
+                    <ImageButton
+                        android:id="@+id/btnPreviewQuestion"
+                        style="@style/PreviewButton"
+                        android:contentDescription="试听 需要你回答"
+                        android:src="@drawable/ic_play"
+                        android:tint="?attr/colorPrimary" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ListRow">
+
+                    <TextView
+                        style="@style/RowTitle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="任务失败" />
+
+                    <ImageButton
+                        android:id="@+id/btnPreviewError"
+                        style="@style/PreviewButton"
+                        android:contentDescription="试听 任务失败"
+                        android:src="@drawable/ic_play"
+                        android:tint="?attr/colorPrimary" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ListRow">
+
+                    <TextView
+                        style="@style/RowTitle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="任务已中断" />
+
+                    <ImageButton
+                        android:id="@+id/btnPreviewInterrupted"
+                        style="@style/PreviewButton"
+                        android:contentDescription="试听 任务已中断"
+                        android:src="@drawable/ic_play"
+                        android:tint="?attr/colorPrimary" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ============ 后台策略 ============ -->
+        <com.google.android.material.card.MaterialCardView style="@style/CardContainer">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    style="@style/CardTitle"
+                    android:text="后台策略" />
+
+                <LinearLayout style="@style/ListRow">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/RowTitle"
+                            android:text="实时长连接" />
+
+                        <TextView
+                            style="@style/RowSubtitle"
+                            android:text="秒级到达；关闭后只在唤醒间隔轮询，更省电" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/swLive"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilWatchdog"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="唤醒间隔（分钟）"
+                    app:endIconMode="none">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etWatchdog"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout style="@style/ListRow">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/RowTitle"
+                            android:text="闹钟级唤醒" />
+
+                        <TextView
+                            style="@style/RowSubtitle"
+                            android:text="Doze 下最可靠，代价是状态栏常驻一个闹钟图标" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/swAlarmClock"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</ScrollView>

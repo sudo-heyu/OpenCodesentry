@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Notification status-bar icon. Must be a white silhouette on transparency;
+  the system tints it. Mark scaled into a 24dp viewport with room to spare,
+  matched to the header mark's proportions.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group
+        android:scaleX="0.225"
+        android:scaleY="0.225"
+        android:translateX="4.6"
+        android:translateY="-0.96">
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M49.2857,32.8573H16.4286V82.143H49.2857V32.8573ZM65.7143,98.5716H0V16.4287H65.7143V98.5716Z" />
+    </group>
+</vector>

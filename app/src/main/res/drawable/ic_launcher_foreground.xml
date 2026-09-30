@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adaptive icon foreground: opencode wordmark mark.
+  Source geometry taken from https://opencode.ai/v2/assets/logo-dark.svg
+  (mark occupies x 0..65.714, y 16.429..98.572) and centred inside the
+  108x108 adaptive-icon canvas. Sized to sit comfortably inside the 66dp safe
+  zone instead of pressing against its edge, which is what makes the icon look
+  crisp under the launcher's mask.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.66"
+        android:scaleY="0.66"
+        android:translateX="32.31"
+        android:translateY="16.05">
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M49.2857,32.8573H16.4286V82.143H49.2857V32.8573ZM65.7143,98.5716H0V16.4287H65.7143V98.5716Z" />
+    </group>
+</vector>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The keeper is deliberately blind.
+
+  Window events are limited to this app's own package, so no UI content from
+  any other app is ever delivered to it. The service exists only so that
+  system_server holds a BIND_AUTO_CREATE binding on the process: that binding
+  is what makes the system recreate the process (and call onServiceConnected)
+  after the process has been killed.
+
+  Do not widen `packageNames` or `accessibilityEventTypes` — there is nothing
+  to observe, and a narrower configuration is both cheaper and less alarming
+  to the user who has to enable it.
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault"
+    android:canRetrieveWindowContent="false"
+    android:description="@string/accessibility_service_description"
+    android:notificationTimeout="1000"
+    android:packageNames="app.opencodesentry" />

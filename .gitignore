@@ -1,0 +1,24 @@
+# --- IDE / local machine state (contains absolute paths, device names) ---
+*.iml
+.idea/
+.gradle
+.kotlin/
+.DS_Store
+
+# --- Local SDK location (contains /Users/<you>) ---
+local.properties
+
+# --- Build output ---
+/build
+/app/build
+/captures
+.externalNativeBuild
+.cxx
+
+# --- Signing material: never commit ---
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+keystore.properties
