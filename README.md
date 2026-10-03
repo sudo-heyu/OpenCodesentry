@@ -21,6 +21,10 @@ Agent 的每一步（思考 / 工具 / 流式输出）都在眼前展开；走�
 [![Release](https://img.shields.io/github/v/release/sudo-heyu/OpenCodesentry?sort=semver)](https://github.com/sudo-heyu/OpenCodesentry/releases)
 [![License](https://img.shields.io/github/license/sudo-heyu/OpenCodesentry)](LICENSE)
 
+<img src="https://cdn.jsdelivr.net/gh/sudo-heyu/OpenCodesentry@main/docs/screenshots/console-demo.gif" width="300" alt="在手机上新建会话、发送消息，实时看着 Agent 干活">
+
+<sub>新建会话 → 发消息 → 看 Agent 实时干活 → 结果回到手机（模拟器实录）</sub>
+
 </div>
 
 ---

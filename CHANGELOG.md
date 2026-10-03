@@ -53,7 +53,8 @@ First public release.
   session management, sending prompts from the phone and watching live agent
   progress are now the headline, illustrated with fresh emulator screenshots
   (`console-new-session.png`, `console-progress.png`, `console-answer.png`;
-  `07-console-home.png` refreshed).
+  `07-console-home.png` refreshed) and a recorded end-to-end demo GIF
+  (`console-demo.gif`).
 
 ### Fixed
 
