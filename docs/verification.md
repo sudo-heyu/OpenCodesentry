@@ -489,4 +489,43 @@ service scope 上，与 SSE 线程并发。
   - `asked` 后 0.3 秒发 `replied` → 日志
     `answered within the grace period; no alert`，通知栏无提醒。
 
+## 14. 控制台实战：新建会话 → 手机发消息 → 看实时进度（本轮，已实测）
+
+在模拟器上把「手机当遥控器」的整条链路完整跑了一遍，作为 README 新截图的来源。
+
+环境：
+
+| 项 | 值 |
+|---|---|
+| 桥接 | `opencode-bridge.py --bind 127.0.0.1 --port 4096`（模拟器无 Tailscale，走 `adb reverse`） |
+| OpenCode | 2.0.22（macOS，`opencode-cli serve --service`，`127.0.0.1:49374`） |
+| 设备 | 模拟器 Pixel_9a，1080×2424，Android 17 / SDK 37 |
+
+步骤与证据：
+
+1. `adb install -r -g` → Success；调试构建以 extras 播种主机 / 端口 / 密码，
+   守护日志出现 `stream open: http://127.0.0.1:4096` 与 `reconcile: active=… streamOpen=true`。
+2. 主页加载官方 web 客户端：会话列表、项目分组与电脑端一致
+   （刷新截图 `screenshots/07-console-home.png`，无关会话已打码）。
+3. 在 App 内点 **New session**，输入 prompt 并从手机发送：
+   - 会话 `ses_efec6d960ffeNuTW1a1J8owXMs` 建立，标题自动生成为「查看项目用途并列出根目录文件」；
+   - 回合执行期间手机端实时显示 `Working` 与 `Used 1 Shell`
+     （截图 `screenshots/console-progress.png`），内容由 SSE 逐字刷新，不是轮询；
+   - 第一个回合 17 秒完成，答案页显示工具调用统计 `Used 6 Read, Glob`
+     （截图 `screenshots/console-answer.png`）；
+   - 从手机追加第二问（统计 `docs/verification.md` 的行数与章节数）同样正常完成。
+4. 对照服务端：`GET /api/session/<id>` 与页面内容一致；回合结束后停止刷新。
+
+本轮新增 / 刷新的截图：
+
+| 文件 | 内容 |
+|---|---|
+| `screenshots/console-new-session.png` | 手机上新建会话：输入框、模型 / 思考深度、项目与分支 |
+| `screenshots/console-progress.png` | 消息已发出，工具调用与输出实时进行中 |
+| `screenshots/console-answer.png` | 完成后的答案与工具用量 |
+| `screenshots/07-console-home.png` | 刷新：会话列表（无关会话已打码） |
+
+方法说明：模拟器无法用相机扫真机二维码，本轮配对走调试种子（与扫码等价的凭据路径）；
+`ScanActivity` 的相机流程仍需真机确认（见 §9）。
+
 

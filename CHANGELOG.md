@@ -47,6 +47,14 @@ First public release.
 - Text fields restyled: borderless filled boxes with 12dp corners; focus is
   shown by the floating label turning ink instead of an outline.
 
+### Changed
+
+- README reworked around the in-app console: scan-to-pair setup, real-time
+  session management, sending prompts from the phone and watching live agent
+  progress are now the headline, illustrated with fresh emulator screenshots
+  (`console-new-session.png`, `console-progress.png`, `console-answer.png`;
+  `07-console-home.png` refreshed).
+
 ### Fixed
 
 - Permission alerts fired even when every permission was granted: OpenCode
