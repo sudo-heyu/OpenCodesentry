@@ -2,6 +2,7 @@ package app.opencodesentry
 
 import android.Manifest
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.NotificationManager
 import android.content.Intent
@@ -17,9 +18,15 @@ import android.provider.Settings as AndroidSettings
 import android.text.Html
 import android.view.View
 import android.view.accessibility.AccessibilityManager
+import android.webkit.CookieManager
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -31,15 +38,21 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import app.opencodesentry.databinding.ActivityMainBinding
 import app.opencodesentry.databinding.PageConfigBinding
+import app.opencodesentry.databinding.PageConsoleBinding
 import app.opencodesentry.databinding.PageOptionsBinding
 import app.opencodesentry.databinding.PageStatusBinding
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.concurrent.thread
 
 /**
- * Three screens behind a bottom bar:
+ * Four screens behind a bottom bar:
  *
+ * - 主页  the OpenCode web console (official UI), entered by scanning the
+ *         desktop pairing QR; also the place the alert credentials come from
  * - 状态  what the guard is doing right now, plus the permission self-check
  * - 选项  which events alert, and how they alert
  * - 配置  the two tailnet addresses and the API credentials
@@ -56,6 +69,15 @@ class MainActivity : AppCompatActivity() {
     private val status: PageStatusBinding get() = binding.pageStatus
     private val options: PageOptionsBinding get() = binding.pageOptions
     private val config: PageConfigBinding get() = binding.pageConfig
+    private val console: PageConsoleBinding get() = binding.pageConsole
+
+    /** Set once the console WebView has content; tab switches reuse it. */
+    private var consoleLoaded = false
+    private var consolePageVisible = false
+    private lateinit var consoleBack: OnBackPressedCallback
+
+    /** Currently selected bottom-bar page; survives configuration changes. */
+    private var currentPage = 0
 
     private val statusTicker = object : Runnable {
         override fun run() {
@@ -92,6 +114,13 @@ class MainActivity : AppCompatActivity() {
             renderStatus()
         }
 
+    private val scanPairing =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val url = result.data?.getStringExtra(ScanActivity.EXTRA_URL)
+                ?: return@registerForActivityResult
+            onPairingScanned(url)
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -104,6 +133,15 @@ class MainActivity : AppCompatActivity() {
         alerter = Alerter(this, settings)
         alerter.ensureChannels()
 
+        consoleBack = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                console.webConsole.goBack()
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, consoleBack)
+        currentPage = savedInstanceState?.getInt(KEY_PAGE, 0) ?: 0
+
+        bindConsolePage()
         bindBottomNav()
         bindStatusPage()
         bindOptionsPage()
@@ -131,12 +169,23 @@ class MainActivity : AppCompatActivity() {
         if (settings.enabled && !ServiceStatus.running) {
             NotifyService.start(this)
         }
+        if (consolePageVisible && !consoleLoaded) openConsole()
         handler.post(statusTicker)
     }
 
     override fun onPause() {
         handler.removeCallbacks(statusTicker)
         super.onPause()
+    }
+
+    override fun onDestroy() {
+        console.webConsole.destroy()
+        super.onDestroy()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(KEY_PAGE, currentPage)
+        super.onSaveInstanceState(outState)
     }
 
     // ------------------------------------------------------------------
@@ -183,8 +232,9 @@ class MainActivity : AppCompatActivity() {
     private fun bindBottomNav() {
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_options -> selectPage(1)
-                R.id.nav_config -> selectPage(2)
+                R.id.nav_status -> selectPage(1)
+                R.id.nav_options -> selectPage(2)
+                R.id.nav_config -> selectPage(3)
                 else -> selectPage(0)
             }
             true
@@ -193,20 +243,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun bindBottomNavInitial() {
-        binding.bottomNav.selectedItemId = R.id.nav_status
-        selectPage(0)
+        binding.bottomNav.selectedItemId = NAV_IDS[currentPage.coerceIn(0, NAV_IDS.lastIndex)]
+        selectPage(currentPage)
     }
 
     private fun selectPage(index: Int) {
-        val pages = listOf(status.root, options.root, config.root)
+        currentPage = index
+        val pages = listOf(console.root, status.root, options.root, config.root)
         pages.forEachIndexed { i, view ->
             view.visibility = if (i == index) View.VISIBLE else View.GONE
         }
         binding.tvHeaderTitle.text = when (index) {
-            1 -> getString(R.string.tab_options)
-            2 -> getString(R.string.tab_config)
-            else -> getString(R.string.tab_status)
+            1 -> getString(R.string.tab_status)
+            2 -> getString(R.string.tab_options)
+            3 -> getString(R.string.tab_config)
+            else -> getString(R.string.tab_home)
         }
+        consolePageVisible = index == 0
+        consoleBack.isEnabled = consolePageVisible && console.webConsole.canGoBack()
+        if (consolePageVisible) openConsole()
     }
 
     // ------------------------------------------------------------------
@@ -273,11 +328,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         status.tvConnection.text = ServiceStatus.connection
-        status.tvLastEvent.text = "最近提醒：${ServiceStatus.lastEvent}"
+        status.tvLastEvent.text = ServiceStatus.lastEvent
         if (ServiceStatus.lastError.isBlank()) {
             status.tvLastError.visibility = View.GONE
         } else {
-            status.tvLastError.text = "最近错误：${ServiceStatus.lastError}"
+            status.tvLastError.text = "错误：${ServiceStatus.lastError}"
             status.tvLastError.visibility = View.VISIBLE
         }
 
@@ -331,7 +386,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun paintState(view: TextView, ready: Boolean) {
         val color = getColor(if (ready) R.color.state_ok else R.color.state_bad)
-        view.text = if (ready) "已就绪 ✓" else "待处理 ✗"
+        view.text = if (ready) "已就绪" else "待处理"
         view.setTextColor(color)
         view.backgroundTintList =
             ColorStateList.valueOf(ColorUtils.setAlphaComponent(color, CHIP_TINT_ALPHA))
@@ -347,7 +402,7 @@ class MainActivity : AppCompatActivity() {
      */
     private fun paintAction(view: TextView) {
         val color = MaterialColors.getColor(view, com.google.android.material.R.attr.colorPrimary)
-        view.text = "打开设置页 →"
+        view.text = "打开设置"
         view.setTextColor(color)
         view.backgroundTintList =
             ColorStateList.valueOf(ColorUtils.setAlphaComponent(color, CHIP_TINT_ALPHA))
@@ -554,17 +609,191 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ------------------------------------------------------------------
+    // 主页 / 控制台
+    // ------------------------------------------------------------------
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun bindConsolePage() {
+        val web = console.webConsole
+        web.settings.javaScriptEnabled = true
+        web.settings.domStorageEnabled = true
+        web.settings.mediaPlaybackRequiresUserGesture = false
+        // The WebView sits between the app bar and the bottom bar, so it must
+        // not report the system bars as safe-area insets: the official web
+        // client honours env(safe-area-inset-*) and would pad itself twice.
+        ViewCompat.setOnApplyWindowInsetsListener(web) { _, _ -> WindowInsetsCompat.CONSUMED }
+        if (BuildConfig.DEBUG) WebView.setWebContentsDebuggingEnabled(true)
+        web.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(
+                view: WebView,
+                request: WebResourceRequest,
+            ): Boolean {
+                val uri = request.url
+                val scheme = uri.scheme.orEmpty()
+                if (scheme != "http" && scheme != "https") {
+                    openExternally(uri)
+                    return true
+                }
+                val expected = settings.hostAddress
+                if (expected.isNotBlank() && uri.host != expected) {
+                    openExternally(uri)
+                    return true
+                }
+                return false
+            }
+
+            override fun onPageFinished(view: WebView, url: String) {
+                console.progressConsole.visibility = View.GONE
+                consoleBack.isEnabled = consolePageVisible && view.canGoBack()
+                capturePairingCredential()
+            }
+
+            override fun onReceivedError(
+                view: WebView,
+                request: WebResourceRequest,
+                error: WebResourceError,
+            ) {
+                if (request.isForMainFrame) showConsoleUnreachable()
+            }
+        }
+        console.btnConsoleScan.setOnClickListener { launchScanner() }
+        console.btnConsoleRetry.setOnClickListener { openConsole(force = true) }
+    }
+
+    private fun launchScanner() {
+        runCatching { scanPairing.launch(Intent(this, ScanActivity::class.java)) }
+            .onFailure { toast("无法打开扫码界面，请在「配置」页手动填写") }
+    }
+
+    /**
+     * The QR was scanned: point the settings at that server and load the
+     * one-time link, which redeems the code and leaves a session cookie in the
+     * WebView jar. [capturePairingCredential] turns that cookie into the API
+     * password the guard uses.
+     */
+    private fun onPairingScanned(url: String) {
+        val link = Pairing.parse(url) ?: return
+        settings.hostAddress = link.host
+        settings.hostPort = link.port
+        loading = true
+        config.etHost.setText(link.host)
+        config.etPort.setText(link.port.toString())
+        loading = false
+
+        consoleLoaded = true
+        showConsoleWebView()
+        console.progressConsole.visibility = View.VISIBLE
+        console.webConsole.loadUrl(link.url)
+        binding.bottomNav.selectedItemId = R.id.nav_home
+    }
+
+    private fun openConsole(force: Boolean = false) {
+        if (!settings.isConfigured()) {
+            showConsoleSetup(
+                R.string.console_setup_title,
+                R.string.console_setup_body,
+                retry = false,
+            )
+            return
+        }
+        if (!consoleLoaded || force) {
+            consoleLoaded = true
+            console.progressConsole.visibility = View.VISIBLE
+            showConsoleWebView()
+            thread {
+                val link = OpenCodeClient(Settings(this)).pairingLink()
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+                    link.fold(
+                        onSuccess = { console.webConsole.loadUrl(it.url) },
+                        onFailure = { showConsoleUnreachable() },
+                    )
+                }
+            }
+        } else {
+            showConsoleWebView()
+        }
+    }
+
+    private fun showConsoleWebView() {
+        console.consoleSetup.visibility = View.GONE
+        console.webConsole.visibility = View.VISIBLE
+    }
+
+    private fun showConsoleSetup(titleRes: Int, bodyRes: Int, retry: Boolean) {
+        console.progressConsole.visibility = View.GONE
+        console.webConsole.visibility = View.GONE
+        console.consoleSetup.visibility = View.VISIBLE
+        console.tvConsoleTitle.setText(titleRes)
+        console.tvConsoleBody.setText(bodyRes)
+        console.btnConsoleRetry.visibility = if (retry) View.VISIBLE else View.GONE
+    }
+
+    private fun showConsoleUnreachable() {
+        console.progressConsole.visibility = View.GONE
+        if (settings.isConfigured()) {
+            consoleLoaded = false
+            showConsoleSetup(
+                R.string.console_unreachable_title,
+                R.string.console_unreachable_body,
+                retry = true,
+            )
+        }
+    }
+
+    /**
+     * Redeeming the pairing link leaves an `opencode_session_<port>` cookie.
+     * Its value is a session token the API also accepts as the Basic password,
+     * so one scan configures both the console and the alert guard. OpenCode
+     * embeds the expiry (epoch seconds) as the token's numeric prefix, which
+     * is what lets the config page warn before alerts silently stop.
+     */
+    private fun capturePairingCredential() {
+        val url = settings.serverUrl
+        if (url.isBlank()) return
+        val cookie = CookieManager.getInstance().getCookie(url) ?: return
+        val token = cookie
+            .split(";")
+            .map(String::trim)
+            .firstOrNull { it.startsWith(PAIR_COOKIE_PREFIX) }
+            ?.substringAfter("=")
+            ?.takeIf(String::isNotBlank)
+            ?: return
+        if (token == settings.password) return
+
+        settings.password = token
+        settings.pairExpiresAt = token
+            .takeWhile(Char::isDigit)
+            .takeIf { it.length >= TOKEN_EXPIRY_DIGITS }
+            ?.toLongOrNull()
+            ?.times(1_000L)
+            ?: 0L
+        renderPairState()
+        toast(getString(R.string.console_pair_ok))
+        if (settings.enabled) NotifyService.sendAction(this, NotifyService.ACTION_START)
+    }
+
+    private fun openExternally(uri: Uri) {
+        runCatching { startActivity(Intent(Intent.ACTION_VIEW, uri)) }
+            .onFailure { toast("没有可打开该链接的应用") }
+    }
+
+    // ------------------------------------------------------------------
     // 配置
     // ------------------------------------------------------------------
 
     private fun bindConfigPage() {
         config.btnSave.setOnClickListener {
             saveConfiguration()
+            consoleLoaded = false
             toast("已保存")
             renderPhoneIpState()
             applyToService()
             renderStatus()
+            renderPairState()
         }
+
+        config.btnPairScan.setOnClickListener { launchScanner() }
 
         config.btnDetectIp.setOnClickListener {
             val detected = TailnetIp.detect()
@@ -602,6 +831,22 @@ class MainActivity : AppCompatActivity() {
         config.tvPhoneIpState.text = text
         status.tvStatusPhoneIp.text = text
     }
+
+    /** Shows where the current credential came from and when it expires. */
+    private fun renderPairState() {
+        val expiry = settings.pairExpiresAt
+        config.tvPairState.text = when {
+            expiry <= 0L -> getString(R.string.config_pair_none)
+            System.currentTimeMillis() > expiry -> getString(
+                R.string.config_pair_expired,
+                formatDate(expiry),
+            )
+            else -> getString(R.string.config_pair_valid, formatDate(expiry))
+        }
+    }
+
+    private fun formatDate(epochMillis: Long): String =
+        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(epochMillis))
 
     private fun runConnectionTest() {
         saveConfiguration()
@@ -669,6 +914,7 @@ class MainActivity : AppCompatActivity() {
         options.etWatchdog.setText(settings.watchdogMinutes.toString())
 
         renderSound()
+        renderPairState()
         loading = false
         renderPhoneIpState()
     }
@@ -754,6 +1000,18 @@ class MainActivity : AppCompatActivity() {
 
         /** Alpha (0-255) of the status-chip background tint. */
         const val CHIP_TINT_ALPHA = 40
+
+        /** Cookie name prefix OpenCode uses for redeemed pairing sessions. */
+        const val PAIR_COOKIE_PREFIX = "opencode_session_"
+
+        /** The token's numeric prefix carries its expiry in epoch seconds. */
+        const val TOKEN_EXPIRY_DIGITS = 10
+
+        /** Saved-state key for the selected bottom-bar page. */
+        const val KEY_PAGE = "selected_page"
+
+        /** Bottom-bar item ids, in page order. */
+        val NAV_IDS = intArrayOf(R.id.nav_home, R.id.nav_status, R.id.nav_options, R.id.nav_config)
 
         // Extras consumed by [seedFromIntent] in debug builds only.
         const val EXTRA_SEED_HOST = "seed_host"

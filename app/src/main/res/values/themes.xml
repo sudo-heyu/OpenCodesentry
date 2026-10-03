@@ -2,10 +2,10 @@
     <!--
       Base application theme.
 
-      Material You dynamic colour is applied at runtime by App.onCreate(); the
-      values below are the static fallback used when the device has no dynamic
-      palette, and the reference for every screen. Day/night variants come from
-      values-night/colors.xml, so a single theme definition covers both.
+      The palette is fixed ("ink" scheme, see values/colors.xml): dynamic
+      colour is deliberately not applied, so the app looks identical on every
+      device and the green/red status colours never shift. Day/night variants
+      come from values-night/colors.xml, so a single theme covers both modes.
     -->
     <style name="Base.Theme.OpencodeNotify" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/m3_primary</item>
@@ -33,7 +33,17 @@
 
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+
+        <!-- Calmer button shape than the M3 pill (see styles.xml). -->
+        <item name="materialButtonStyle">@style/Widget.Opencode.Button</item>
     </style>
 
     <style name="Theme.OpencodeNotify" parent="Base.Theme.OpencodeNotify" />
+
+    <!-- Full-screen QR scanner: black backdrop so the camera preview leads. -->
+    <style name="Theme.OpencodeNotify.Scanner" parent="Base.Theme.OpencodeNotify">
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
 </resources>

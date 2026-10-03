@@ -22,3 +22,7 @@ local.properties
 *.pem
 *.key
 keystore.properties
+
+# --- Python cache (bridge tooling) ---
+__pycache__/
+*.pyc

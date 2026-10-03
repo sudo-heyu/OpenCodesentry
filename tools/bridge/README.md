@@ -67,6 +67,22 @@ powershell -ExecutionPolicy Bypass -File .\tools\bridge\install-bridge-windows.p
 | `--bind 0.0.0.0` | 同时暴露到局域网（无 Tailscale 时用） |
 | `--bind 127.0.0.1` | 只绑本机回环（配合 `adb reverse` 做模拟器调试） |
 | `--cli <路径>` | 手动指定 `opencode-cli`（自动探测失败时用） |
+| `--pair` | 启动时额外打印一个官方配对二维码（见下节） |
+
+## 配对二维码（`--pair`）
+
+```sh
+python3 tools/bridge/opencode-bridge.py --pair
+```
+
+脚本会调用 OpenCode 官方的配对接口（`POST /api/pair`），打印一个
+**5 分钟有效、单次使用**的二维码；手机（同一 tailnet）扫一扫完成配对，
+浏览器直接进入 OpenCode 自带的 web 客户端，无需手输密码。
+
+- 二维码内容是 `http://<tailnet地址>:<端口>/auth/connect/<配对码>`；
+- 同时保存为临时文件 `opencode-pair.png`（路径会打印出来）；
+- 兑换后浏览器获得 30 天会话凭据（Cookie），过期后重新生成即可；
+- 这个链接本身相当于一次性凭据，不要转发给不受信任的人。
 
 ## 找不到 opencode-cli？
 

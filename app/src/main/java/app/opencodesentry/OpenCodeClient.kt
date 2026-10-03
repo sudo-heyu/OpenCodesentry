@@ -1,8 +1,10 @@
 package app.opencodesentry
 
 import okhttp3.Credentials
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.sse.EventSource
 import okhttp3.sse.EventSourceListener
 import okhttp3.sse.EventSources
@@ -70,6 +72,28 @@ class OpenCodeClient(private val settings: Settings) {
                 error("HTTP ${response.code}: ${body.take(200)}")
             }
             JSONObject(body).optString("version", "unknown")
+        }
+    }
+
+    /**
+     * Mints a fresh single-use pairing code (`POST /api/pair`) and returns the
+     * redeem URL. Loading that URL in the console WebView is what establishes
+     * the session cookie the official web UI relies on, for QR-paired and
+     * hand-entered credentials alike.
+     */
+    fun pairingLink(): Result<Pairing.Link> = runCatching {
+        val request = Request.Builder()
+            .url(endpoint("/api/pair"))
+            .header("Authorization", authorization())
+            .post("{}".toRequestBody("application/json".toMediaType()))
+            .build()
+        api.newCall(request).execute().use { response ->
+            val body = response.body?.string().orEmpty()
+            if (!response.isSuccessful) error("HTTP ${response.code}")
+            val code = JSONObject(body).optString("code")
+            check(code.isNotEmpty()) { "no pairing code in response" }
+            Pairing.parse("${settings.serverUrl.trimEnd('/')}/auth/connect/$code")
+                ?: error("unusable pairing link")
         }
     }
 

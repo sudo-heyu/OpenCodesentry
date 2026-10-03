@@ -34,10 +34,10 @@ object TailnetIp {
     fun describe(configured: String): String {
         val detected = detect()
         return when {
-            detected == null -> "未检测到 tailnet 地址（Tailscale 未连接？）"
-            configured.isBlank() -> "本机 tailnet 地址：$detected（尚未填写）"
-            configured == detected -> "本机 tailnet 地址：$detected ✓ 与配置一致"
-            else -> "本机实际是 $detected，与配置的 $configured 不一致"
+            detected == null -> "未检测到（Tailscale 未连接？）"
+            configured.isBlank() -> "检测到 $detected（尚未填写）"
+            configured == detected -> "$detected ✓ 与配置一致"
+            else -> "检测到 $detected，与配置的 $configured 不一致"
         }
     }
 }

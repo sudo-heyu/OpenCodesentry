@@ -4,50 +4,49 @@
     <color name="white">#FFFFFFFF</color>
 
     <!--
-      Self-check indicators on the status page. These are deliberately outside
-      the Material scheme: green/red must read the same whether or not the
-      device supports Material You dynamic colour.
+      Status indicators are the only chroma in the UI: green / red / gray must
+      read the same on every device, so they sit outside the Material scheme.
     -->
-    <color name="state_ok">#1B7F4B</color>
-    <color name="state_bad">#C0392B</color>
-    <color name="state_idle">#9E9E9E</color>
+    <color name="state_ok">#1F7A50</color>
+    <color name="state_bad">#B23B32</color>
+    <color name="state_idle">#8B9099</color>
 
     <!--
-      App surfaces. Kept outside the Material scheme on purpose: the page /
-      card / bar hierarchy should read the same on every device, while the
-      accent (colorPrimary) still comes from Material You when available.
-      Night overrides live in values-night/colors.xml.
+      Flat surfaces: page and bars share one tone, rows are separated by
+      hairlines instead of panels. Night overrides live in values-night.
     -->
-    <color name="app_background">#F4F5FA</color>
+    <color name="app_background">#F5F5F6</color>
     <color name="app_surface">#FFFFFF</color>
-    <color name="app_surface_muted">#EDEFF6</color>
-    <color name="app_outline">#E3E5EC</color>
+    <color name="app_surface_muted">#EFEFF1</color>
+    <color name="app_outline">#E6E7E9</color>
+
+    <!-- Filled text fields: one step darker than the page so the box reads. -->
+    <color name="input_background">#ECEDEF</color>
 
     <!--
-      Fallback colour scheme, used only when Material You is unavailable.
-      A calm indigo/blue that matches the app's "quiet daemon" character.
-      Night overrides live in values-night/colors.xml.
+      Fixed "ink" scheme: near-black accent, neutral grays. Deliberately not
+      Material You — a developer tool should look the same on every wallpaper.
     -->
-    <color name="m3_primary">#1B5AC4</color>
+    <color name="m3_primary">#1C1D20</color>
     <color name="m3_on_primary">#FFFFFF</color>
-    <color name="m3_primary_container">#D9E2FF</color>
-    <color name="m3_on_primary_container">#001A41</color>
+    <color name="m3_primary_container">#E9E9EB</color>
+    <color name="m3_on_primary_container">#1C1D20</color>
 
-    <color name="m3_secondary">#565E71</color>
+    <color name="m3_secondary">#5B5F66</color>
     <color name="m3_on_secondary">#FFFFFF</color>
-    <color name="m3_secondary_container">#DAE2F9</color>
-    <color name="m3_on_secondary_container">#131C2B</color>
+    <color name="m3_secondary_container">#ECECEE</color>
+    <color name="m3_on_secondary_container">#2A2C30</color>
 
-    <color name="m3_surface">#FAF9FF</color>
-    <color name="m3_on_surface">#1A1B20</color>
-    <color name="m3_surface_variant">#E1E2EC</color>
-    <color name="m3_on_surface_variant">#44464F</color>
-    <color name="m3_outline">#74777F</color>
-    <color name="m3_outline_variant">#C4C6D0</color>
+    <color name="m3_surface">#F5F5F6</color>
+    <color name="m3_on_surface">#17181A</color>
+    <color name="m3_surface_variant">#ECECEE</color>
+    <color name="m3_on_surface_variant">#6C7078</color>
+    <color name="m3_outline">#8B9099</color>
+    <color name="m3_outline_variant">#E6E7E9</color>
 
-    <color name="m3_surface_container_lowest">#FFFFFF</color>
-    <color name="m3_surface_container_low">#F4F3FA</color>
-    <color name="m3_surface_container">#EEEDF4</color>
-    <color name="m3_surface_container_high">#E8E7EF</color>
-    <color name="m3_surface_container_highest">#E2E2E9</color>
+    <color name="m3_surface_container_lowest">#F5F5F6</color>
+    <color name="m3_surface_container_low">#EFEFF1</color>
+    <color name="m3_surface_container">#E9E9EB</color>
+    <color name="m3_surface_container_high">#E3E4E6</color>
+    <color name="m3_surface_container_highest">#DDDEE1</color>
 </resources>

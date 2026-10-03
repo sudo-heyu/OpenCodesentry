@@ -11,6 +11,7 @@ Runs on macOS, Linux and Windows with the standard library only.
     python3 opencode-bridge.py                 # bind to the tailnet IP
     python3 opencode-bridge.py --port 4096
     python3 opencode-bridge.py --bind 0.0.0.0  # also reachable on the LAN
+    python3 opencode-bridge.py --pair          # also print a pairing QR
 
 Stop it with Ctrl+C. The API stays protected by OpenCode's HTTP Basic auth.
 """
@@ -19,12 +20,17 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import base64
 import json
 import os
 import re
 import shutil
+import struct
 import subprocess
 import sys
+import tempfile
+import urllib.request
+import zlib
 from pathlib import Path
 
 IS_WINDOWS = sys.platform.startswith("win")
@@ -165,8 +171,8 @@ def tailscale_ip() -> str | None:
     return interface_tailnet_ip() or cli_tailnet_ip()
 
 
-def service_json_hint() -> str:
-    """Best guess at where OpenCode keeps the password on this machine."""
+def service_json_candidates() -> list[Path]:
+    """Every known place OpenCode may keep the service password."""
     candidates: list[Path] = []
     if IS_WINDOWS:
         for var in ("APPDATA", "LOCALAPPDATA"):
@@ -174,10 +180,33 @@ def service_json_hint() -> str:
             if base:
                 candidates.append(Path(base) / "opencode/service.json")
     candidates.append(Path.home() / ".config/opencode/service.json")
+    state_home = os.environ.get("XDG_STATE_HOME")
+    candidates.append(
+        (Path(state_home) if state_home else Path.home() / ".local/state")
+        / "opencode/service.json"
+    )
+    return candidates
+
+
+def service_json_hint() -> str:
+    """Best guess at where OpenCode keeps the password on this machine."""
+    candidates = service_json_candidates()
     for candidate in candidates:
         if candidate.is_file():
             return str(candidate)
     return str(candidates[0])
+
+
+def service_password() -> str | None:
+    for candidate in service_json_candidates():
+        try:
+            data = json.loads(candidate.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        password = data.get("password")
+        if isinstance(password, str) and password:
+            return password
+    return None
 
 
 # ----------------------------------------------------------------------
@@ -257,6 +286,126 @@ async def handle(
     )
 
 
+# ----------------------------------------------------------------------
+# Pairing QR (official /api/pair flow)
+# ----------------------------------------------------------------------
+
+def create_pairing_code(target: tuple[str, int], password: str) -> str | None:
+    """POST /api/pair on the loopback service; returns a 5-minute single-use code."""
+    credentials = base64.b64encode(f"opencode:{password}".encode()).decode()
+    request = urllib.request.Request(
+        f"http://{target[0]}:{target[1]}/api/pair",
+        data=b"{}",
+        method="POST",
+        headers={
+            "Authorization": f"Basic {credentials}",
+            "Content-Type": "application/json",
+        },
+    )
+    try:
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        with opener.open(request, timeout=15) as response:
+            code = json.loads(response.read().decode()).get("code")
+            return code if isinstance(code, str) and code else None
+    except Exception:
+        return None
+
+
+def _qr_code(text: str):
+    try:
+        import qrgen
+    except ImportError:
+        return None
+    return qrgen.QrCode.encode_text(text, qrgen.QrCode.Ecc.MEDIUM)
+
+
+def render_terminal_qr(text: str, border: int = 4) -> str | None:
+    """Dark modules on white via ANSI backgrounds, so any camera can scan it."""
+    qr = _qr_code(text)
+    if qr is None:
+        return None
+    size = qr.get_size()
+    lines: list[str] = []
+    for y in range(-border, size + border):
+        cells: list[str] = []
+        for x in range(-border, size + border):
+            dark = 0 <= x < size and 0 <= y < size and qr.get_module(x, y)
+            cells.append("\x1b[40m  " if dark else "\x1b[47m  ")
+        lines.append("".join(cells) + "\x1b[0m")
+    return "\n".join(lines)
+
+
+def write_qr_png(text: str, path: Path, scale: int = 8, border: int = 4) -> bool:
+    """Tiny stdlib PNG writer (8-bit grayscale) for the same QR."""
+    qr = _qr_code(text)
+    if qr is None:
+        return False
+    size = qr.get_size()
+    width = (size + border * 2) * scale
+    raw = bytearray()
+    for y in range(width):
+        raw.append(0)  # filter: none
+        for x in range(width):
+            mx, my = x // scale - border, y // scale - border
+            dark = 0 <= mx < size and 0 <= my < size and qr.get_module(mx, my)
+            raw.append(0 if dark else 255)
+
+    def chunk(kind: bytes, data: bytes) -> bytes:
+        return (
+            struct.pack(">I", len(data))
+            + kind
+            + data
+            + struct.pack(">I", zlib.crc32(kind + data) & 0xFFFFFFFF)
+        )
+
+    png = (
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", struct.pack(">IIBBBBB", width, width, 8, 0, 0, 0, 0))
+        + chunk(b"IDAT", zlib.compress(bytes(raw), 9))
+        + chunk(b"IEND", b"")
+    )
+    try:
+        path.write_bytes(png)
+        return True
+    except Exception:
+        return False
+
+
+def print_pairing(bind: str, port: int, target: tuple[str, int]) -> None:
+    """Create one official pairing code and show it as URL + QR."""
+    password = service_password()
+    if not password:
+        print(
+            "[pair] warning: could not read the service password; no code created",
+            flush=True,
+        )
+        return
+    code = create_pairing_code(target, password)
+    if not code:
+        print("[pair] warning: could not create a pairing code", flush=True)
+        return
+
+    host = bind
+    if host in ("0.0.0.0", "::"):
+        host = tailscale_ip() or host
+    url = f"http://{host}:{port}/auth/connect/{code}"
+
+    print(flush=True)
+    print("[pair] single-use pairing link, expires in 5 minutes:", flush=True)
+    print(f"[pair] {url}", flush=True)
+    png = Path(tempfile.gettempdir()) / "opencode-pair.png"
+    if write_qr_png(url, png):
+        print(f"[pair] QR image: {png}", flush=True)
+    terminal = render_terminal_qr(url)
+    if terminal:
+        print(terminal, flush=True)
+    print(
+        "[pair] scan it with the phone camera (same tailnet); the browser redeems",
+        flush=True,
+    )
+    print("[pair] the code and opens the OpenCode web client, already signed in", flush=True)
+
+
 async def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=4096, help="port to listen on (default 4096)")
@@ -266,6 +415,11 @@ async def main() -> int:
         help="interface to bind: 'auto' (Tailscale IP), an address, or 0.0.0.0",
     )
     parser.add_argument("--cli", default="", help="path to the opencode-cli binary")
+    parser.add_argument(
+        "--pair",
+        action="store_true",
+        help="also print a single-use pairing QR (official /api/pair) for the web client",
+    )
     parser.add_argument(
         "--bind-retries",
         type=int,
@@ -303,16 +457,38 @@ async def main() -> int:
             print("[bridge] Tailscale not detected; binding to 0.0.0.0 (LAN + tailnet)")
 
     state: dict = {"target": None}
-    server = await asyncio.start_server(
-        lambda r, w: handle(r, w, state),
-        host=bind,
-        port=args.port,
-    )
+    try:
+        server = await asyncio.start_server(
+            lambda r, w: handle(r, w, state),
+            host=bind,
+            port=args.port,
+        )
+    except OSError as exc:
+        if not args.pair:
+            raise
+        print(
+            f"[bridge] port {args.port} is already in use ({exc.strerror}); "
+            "pairing against the running bridge",
+            flush=True,
+        )
+        target = await asyncio.to_thread(resolve_service, cli)
+        if target:
+            print_pairing(bind, args.port, target)
+        else:
+            print("[pair] warning: could not locate the OpenCode service", flush=True)
+        return 0
     refresh = asyncio.create_task(refresh_loop(cli, state, RESOLVE_INTERVAL))
 
     print(f"[bridge] listening on {bind}:{args.port}")
     print(f"[bridge] set the app server URL to http://{bind}:{args.port}")
     print(f"[bridge] credentials: user 'opencode', password from {service_json_hint()}")
+
+    if args.pair:
+        target = await asyncio.to_thread(resolve_service, cli)
+        if target:
+            print_pairing(bind, args.port, target)
+        else:
+            print("[pair] warning: could not locate the OpenCode service yet", flush=True)
 
     async with server:
         try:

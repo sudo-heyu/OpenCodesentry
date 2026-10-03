@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Shared spacing scale. Every screen uses these instead of magic numbers so
-  the three pages line up with each other.
+  Shared spacing scale. The layout is deliberately tight: flat sections,
+  hairline separators, and rows that stay close to the 44dp touch minimum.
 -->
 <resources>
     <!-- Screen gutters. -->
     <dimen name="screen_h_padding">16dp</dimen>
-    <dimen name="screen_top_padding">4dp</dimen>
-    <dimen name="screen_bottom_padding">28dp</dimen>
+    <dimen name="screen_top_padding">0dp</dimen>
+    <dimen name="screen_bottom_padding">24dp</dimen>
 
-    <!-- Cards. -->
-    <dimen name="card_corner">20dp</dimen>
-    <dimen name="card_gap">12dp</dimen>
-    <dimen name="card_padding">18dp</dimen>
+    <!-- Sections. -->
+    <dimen name="section_top_gap">18dp</dimen>
+    <dimen name="section_title_bottom">2dp</dimen>
 
-    <!-- Rows. A row is at least a comfortable 48dp touch target. -->
-    <dimen name="row_min_height">48dp</dimen>
-    <dimen name="row_vertical_padding">10dp</dimen>
+    <!-- Rows. -->
+    <dimen name="row_min_height">44dp</dimen>
+    <dimen name="row_vertical_padding">8dp</dimen>
 
-    <!-- Status pills. -->
-    <dimen name="chip_h_padding">12dp</dimen>
-    <dimen name="chip_v_padding">4dp</dimen>
-    <dimen name="chip_min_width">68dp</dimen>
+    <!-- Status chips. -->
+    <dimen name="chip_h_padding">8dp</dimen>
+    <dimen name="chip_v_padding">3dp</dimen>
+    <dimen name="chip_min_width">56dp</dimen>
 
     <!-- Header. -->
-    <dimen name="header_badge">40dp</dimen>
+    <dimen name="header_badge">32dp</dimen>
 </resources>

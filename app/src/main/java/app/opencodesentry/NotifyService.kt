@@ -18,6 +18,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.sse.EventSource
 import org.json.JSONObject
+import java.util.Collections
 
 /**
  * The resident guard.
@@ -44,8 +45,12 @@ class NotifyService : Service() {
     @Volatile
     private var streamOpen = false
 
-    /** Alert keys already delivered, so the stream and the poll agree. */
-    private val notified = object : LinkedHashSet<String>() {
+    /**
+     * Alert keys already delivered, so the stream and the poll agree. Wrapped
+     * for concurrent access: the stream reports on its own thread while the
+     * delayed permission check runs on [scope].
+     */
+    private val notified = Collections.synchronizedSet(object : LinkedHashSet<String>() {
         override fun add(element: String): Boolean {
             val added = super.add(element)
             if (added && size > 500) {
@@ -55,7 +60,10 @@ class NotifyService : Service() {
             }
             return added
         }
-    }
+    })
+
+    /** Holds permission alerts until auto-approval had its chance to reply. */
+    private val permissions = PermissionGate()
 
     override fun onCreate() {
         super.onCreate()
@@ -273,6 +281,54 @@ class NotifyService : Service() {
     // ------------------------------------------------------------------
 
     private fun handleEvent(event: ServerEvent) {
+        when (event.type) {
+            // Auto-approval still emits `permission.asked` (the official web
+            // client's autoApprove, `opencode run --auto`, an allowing
+            // ruleset) and answers it within milliseconds. Hold the alert and
+            // drop it if `permission.replied` wins the race.
+            "permission.asked" -> holdPermissionAlert(event)
+            "permission.replied" -> dropPermissionAlert(event)
+            else -> announce(event)
+        }
+    }
+
+    private fun holdPermissionAlert(event: ServerEvent) {
+        val requestID = firstString(event.data, "id", "requestID", "requestId") ?: return
+        if (!settings.notifyPermission) {
+            Logx.i("event permission.asked ignored (kind PERMISSION disabled)")
+            return
+        }
+        if (!permissions.asked(requestID)) {
+            Logx.i("event permission.asked deduped (key per:$requestID)")
+            return
+        }
+        scope.launch {
+            delay(PERMISSION_GRACE_MS)
+            if (!permissions.fired(requestID)) {
+                Logx.i("permission $requestID answered within the grace period; no alert")
+                return@launch
+            }
+            if (!settings.notifyPermission) return@launch
+            val key = alertKey(AlertKind.PERMISSION, event.data) ?: return@launch
+            if (!notified.add(key)) {
+                Logx.i("event permission.asked deduped (key $key)")
+                return@launch
+            }
+            val detail = describe(event)
+            Logx.i("event permission.asked -> PERMISSION · $detail")
+            ServiceStatus.lastEvent = "${AlertKind.PERMISSION.title} · $detail"
+            alerter.alert(AlertKind.PERMISSION, detail)
+        }
+    }
+
+    private fun dropPermissionAlert(event: ServerEvent) {
+        val requestID = firstString(event.data, "requestID", "requestId", "id") ?: return
+        if (permissions.replied(requestID)) {
+            Logx.i("permission $requestID replied within the grace period; no alert")
+        }
+    }
+
+    private fun announce(event: ServerEvent) {
         val kind = AlertKind.fromEventType(event.type) ?: return
         if (!isEnabled(kind)) {
             Logx.i("event ${event.type} ignored (kind $kind disabled)")
@@ -408,6 +464,13 @@ class NotifyService : Service() {
         const val ACTION_TEST = "app.opencodesentry.action.TEST"
 
         private const val RECONNECT_DELAY_MS = 10_000L
+
+        /**
+         * How long a `permission.asked` is held back. Auto-approval answers in
+         * milliseconds, so two seconds cleanly separates a false prompt from a
+         * request that really is waiting for the user.
+         */
+        private const val PERMISSION_GRACE_MS = 2_000L
 
         private val NESTED_CONTAINERS = listOf("request", "permission", "form", "session", "data")
 

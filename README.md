@@ -28,9 +28,13 @@ OpenCode 的安卓提醒端 —— 任务完成、需要授权、需要你回答
 [OpenCode](https://opencode.ai) coding agent. A foreground service holds an SSE
 connection to your own machine — exposed over Tailscale by a tiny Python bridge —
 and alerts you the moment a task finishes, blocks on a permission prompt, asks a
-question, or fails.
+question, or fails. It also ships a built-in console: scan the pairing QR that
+the bridge prints and the official OpenCode web UI opens inside the app, so every
+session can be watched — and driven — exactly as on the computer.
 
 - ⚡ **Instant** — one long-lived SSE connection; events arrive in under a second.
+- 📱 **Full console** — the official web UI in-app over Tailscale: all sessions,
+  messages, tool runs, sub-agents, model / thinking-depth switching and replies.
 - 🔔 **Loud with the screen off** — notification + vibration + ringtone + voice.
 - ♻️ **Self-healing** — accessibility keeper / persistent Job / exact-alarm
   watchdog; survives the "one-tap clean" of aggressive vendor ROMs.
@@ -56,8 +60,9 @@ question, or fails.
 你在电脑上让 OpenCode 干活，人走开去泡咖啡。它跑完了、或者卡在「要不要允许这个命令」上——
 **OpenCode Sentry 会在你手机上把你叫回来**，不用盯着屏幕，也不怕手机熄屏、不怕后台被国产 ROM 清掉。
 
-它只是**接收端**：不代替电脑上的 OpenCode，也不上传任何数据。手机通过 **Tailscale** 直连你自己的机器，
-提醒内容只在你自己的设备之间流动。
+它有两个角色：**接收端**——不代替电脑上的 OpenCode，也不上传任何数据，手机通过 **Tailscale** 直连你自己的机器，
+提醒内容只在你自己的设备之间流动；以及**控制台**——扫码配对后，官方 OpenCode web 界面直接装进 App 里，
+所有会话、消息、工具执行、子智能体都能看，也能直接发指令。
 
 ---
 
@@ -90,6 +95,8 @@ question, or fails.
 ## ✨ 为什么是它
 
 - **秒级到达** —— 前台服务持有一条到 `/api/event` 的 SSE 长连接，事件一到就响。
+- **控制台随身走** —— 扫码配对，官方 OpenCode web UI 直接进 App；会话列表、工具执行、子智能体与电脑端同一视角，
+  模型与思考深度都能切，消息随手发。
 - **熄屏也叫得醒** —— 通知 + 震动 + 铃声 + 语音播报，四路一起上。
 - **杀了能回来** —— 无障碍守护 / 持久化 Job / 精确闹钟三重自愈，专治国产 ROM 的「一键清理」。
 - **划不掉** —— 应用从「最近任务」隐藏，没有卡片可划，系统的清理也看不到它。
@@ -124,6 +131,10 @@ powershell -ExecutionPolicy Bypass -File .\tools\bridge\install-bridge-windows.p
 成功会打印监听地址，例如 `100.101.102.103:4096`。桥接每 15 秒重新解析一次 OpenCode 的端口，
 所以 OpenCode 重启换端口后它会自动跟随。三个平台的细节见 [`tools/bridge/README.md`](tools/bridge/README.md)。
 
+> 想免输密码：加 `--pair` 启动（`python3 tools/bridge/opencode-bridge.py --pair`），
+> 会在终端画出一个 **5 分钟有效、单次使用**的配对二维码（同时存为 `opencode-pair.png`）。
+> 手机（同一 tailnet）扫码后浏览器直接进入 OpenCode 自带的 web 客户端，与电脑端同一视角。
+
 ### ② 手机端：装 App + 加入同一个 tailnet
 
 ```sh
@@ -136,9 +147,10 @@ Tailscale 里给手机开启 **始终开启 VPN** 与 **阻止无 VPN 时的连�
 
 ### ③ 在 App 里收尾
 
-1. **配置页**：填「电脑端 IP」（就是上面桥接打印的地址）+ 端口 `4096` + 用户名 / 密码。
+1. **主页 / 配置页**：电脑端用 `--pair` 启动桥接，点「扫码配对」扫一下终端里的二维码——
+   地址、凭据、控制台一次配好。也可以手动填「电脑端 IP」+ 端口 `4096` + 用户名 / 密码，
    密码在 OpenCode 的 `service.json` 里（macOS/Linux：`~/.config/opencode/service.json`；
-   Windows：`%APPDATA%\opencode\service.json`）。点 **测试连接**，看到成功即可。
+   Windows：`%APPDATA%\opencode\service.json`），点 **测试连接**。
 2. **状态页**：按顺序完成「保活与权限自检」，打开 **启用守护服务**。
 3. 点 **发送测试提醒**，确认震动 / 铃声 / 语音都正常。
 
@@ -266,7 +278,7 @@ docs/          截图 · verification.md（实测记录）
 ./gradlew testDebugUnitTest    # 单元测试
 ```
 
-环境：AGP 9.x · Kotlin · `minSdk 31`（Android 12）· `targetSdk 37` · Material 3（支持动态取色，深浅色自适应）。
+环境：AGP 9.2.1 · Kotlin · `minSdk 31`（Android 12）· `targetSdk 37` · Material 3（固定墨色配色，深浅色自适应）。
 
 模拟器端到端（不需要 Tailscale，走 `adb reverse` 直连本机桥接）：
 
@@ -297,7 +309,10 @@ adb reverse tcp:4096 tcp:4096
 
 - `permission.asked` / `form.*` 的轮询兜底是**单 location 作用域**的，断线期间漏掉的授权请求无法补发；
   `session` 相关事件是全局的，可以补齐。实时长连接正常时不受影响。
-- 目前是**单向提醒**，还不能在手机上直接回复授权 / 提问。
+- 目前是**单向提醒 + 完整控制台**：提醒仍是单向的；回复授权 / 提问、发消息请在
+  「主页」控制台里操作（官方 web UI）。手机本地文件上传（附件）暂不支持，web 界面里以主机侧文件为准。
+- 扫码得到的控制台凭据有效期 **30 天**（自动同步给提醒服务），过期后重新扫码即可；
+  手动填写的 `service.json` 密码不受影响。
 - 深睡眠下 `setExactAndAllowWhileIdle` 会被限流（约 9–15 分钟一次）；要分钟级精确唤醒可打开
   **闹钟级唤醒**，代价是状态栏常驻一个闹钟图标。
 - 「自启动」「后台运行」**没有公开查询接口**，应用只能把你送到设置页，无法替你确认

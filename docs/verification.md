@@ -9,7 +9,7 @@
 | OpenCode | 2.0.18（macOS，`opencode-cli serve --service`） |
 | 宿主 | my-mac，tailnet `100.101.102.103`，MagicDNS `my-mac.tailnet.ts.net` |
 | Android | 模拟器 Pixel_4a，Android 17 / SDK 37（`google_apis`，arm64-v8a） |
-| 构建 | AGP 9.4.1（内置 Kotlin），compileSdk 37，minSdk 31，targetSdk 37 |
+| 构建 | AGP 9.2.1（内置 Kotlin），compileSdk 37，minSdk 31，targetSdk 37 |
 
 ---
 
@@ -293,3 +293,200 @@ adb logcat -s OpenCodeNotify
 
 `tools/mac/probe_events.sh` 会建一个 `event-probe` 会话、发一句 prompt、
 捕获并打印该会话的终止事件，然后删除会话——用来复核事件映射是否仍然成立。
+
+## 9. 控制台 + 扫码配对（本轮，已实测）
+
+应用从三页变为四页：**主页（官方 OpenCode web 控制台）/ 状态 / 选项 / 配置**。
+
+### 配对协议（对真实服务实测）
+
+| 项 | 结果 |
+|---|---|
+| `POST /api/pair`（Basic 认证） | `{"code":"…","expires_in":300}`，一次性、5 分钟 |
+| `GET /auth/connect/{code}`（无需凭据） | `Accept: application/json` → `{"token":"…"}`（54 位，前缀为 30 天后的 epoch 秒） |
+| 浏览器路径 | `Accept: text/html` → `302 /` + `Set-Cookie: opencode_session_<外部端口>` |
+| Cookie 值当 Basic 密码 | ✅ `GET /api/info` → `200`（一个扫码同时配好控制台与提醒服务） |
+| 服务根路径 `/` | 官方 web 客户端（PWA），经桥接从 tailnet 访问同样 200 |
+
+### 应用行为
+
+- **扫码**：`ScanActivity`（CameraX + 打包版 ML Kit，不依赖 Play Services、离线可用）只接受
+  `/auth/connect/…` 链接；扫到别的二维码会提示而不是半配置。
+- **手动填密码也能进控制台**：打开主页时应用自己调 `POST /api/pair` 换一次性码，
+  再让 WebView 兑换——所以不扫码也能用，且每次打开会自动续 30 天凭据。
+- **凭据回填**：WebView 兑换后从 CookieManager 取出 `opencode_session_*`，存为提醒服务的
+  Basic 密码；token 前缀解析出到期日，配置页显示「扫码凭据：有效至 …」。
+
+### 证据（模拟器 Pixel 9a，Android 17 / SDK 37，OpenCode 2.0.22）
+
+- `./gradlew assembleDebug` / `testDebugUnitTest` BUILD SUCCESSFUL；APK 43 MB（ML Kit 模型 +4 MB）
+- 合并清单含 `android.permission.CAMERA`；`ScanActivity` 未导出、竖屏、Scanner 主题
+- 种子密码启动 → 主页自动完成 pair → **官方 web 客户端完整渲染**（会话列表、项目分组），
+  截图 [`screenshots/07-console-home.png`](screenshots/07-console-home.png)
+- 配置页显示「扫码凭据：有效至 2026-11-01」，截图
+  [`screenshots/08-config-pairing.png`](screenshots/08-config-pairing.png)
+- 四页签逐页截图无崩溃；logcat 无 `FATAL EXCEPTION`；SSE `stream open`、守护运行正常
+- 控制台加载走 `adb reverse` 回环桥接（模拟器无 Tailscale），与真机只差网络路径
+
+### 尚未验证（真机）
+
+- **相机扫码**：模拟器无法构造真实二维码入镜，`ScanActivity` 的运行时流程（权限弹窗、
+  CameraX 取景、ML Kit 识别）需要真机确认。
+- **窄屏 web 交互**：官方 web UI 在手机宽度下的可用性（列表、输入框、权限弹窗）需真机体验。
+- 扫码凭据 30 天到期后的重新配对流程（应用已给出到期提示）。
+
+## 10. UI 重构：墨色平面设计（本轮，已实测）
+
+配色整体更换为固定的「墨色」体系，并去掉卡片式布局，改为紧凑的平面分区。
+
+### 设计规则
+
+| 项 | 旧 | 新 |
+|---|---|---|
+| 配色 | Material You 动态取色（壁纸决定）+ 靛蓝兜底 | **固定墨色**：近黑主色 + 中性灰；动态取色停用，任何壁纸上观感一致 |
+| 彩色 | 主色 + 状态色 | **只有状态色**（绿 / 红 / 灰）带彩色，其余全部单色 |
+| 布局 | 圆角 20dp 卡片 + 描边，卡片间距 12dp | **无卡片**：分区标签 + 1dp 细线分隔 |
+| 行高 | 最小 48dp / 内边距 10dp | 最小 44dp / 内边距 8dp |
+| 按钮 | M3 全圆角胶囊 | 10dp 圆角（`ShapeAppearance.Opencode.Button`，主题级默认 + Outlined/Text 变体） |
+| 字号 | 行标题 bodyLarge、页头 titleLarge | 行标题 bodyMedium、页头 titleMedium |
+| 状态胶囊 | 999dp 全圆、最小 68dp | 6dp 圆角、最小 56dp |
+| 徽标 | 40dp 带高光渐变 | 32dp 纯色 |
+
+### 本轮发现并修复的缺陷
+
+1. 系统切换深色模式（或任何配置变更）触发 Activity 重建后，底栏页签被重置回「主页」。
+   已用 `onSaveInstanceState` 保存当前页索引并在重建后恢复；实测：在「配置」页切深色，
+   重建后仍停在「配置」。
+2. 状态页文字重复：行标签已是「最近提醒」，值里又带「最近提醒：」前缀；已去掉。
+   `TailnetIp.describe()` 同理去掉了与标签重复的前缀。
+3. 「扫码配对」原为 tonal 按钮，浅色下与背景几乎同色不可见；改为描边按钮。
+
+### 证据
+
+浅色 / 深色两套、四页 + 滚动位置逐屏截图核对（模拟器 Pixel 9a，Android 17）：
+
+- `screenshots/status-overview.png`、`status-diagnostics.png`
+- `screenshots/options-events.png`、`options-voice.png`
+- `screenshots/config-tailscale.png`、`config-credentials.png`
+- `screenshots/07-console-home.png`（深色模式下官方 web 客户端同样跟随系统切换）
+- `screenshots/ui-overview.png`：四页 × 浅色顶/底 × 深色顶的总览拼图
+- 页签持久化：配置页 → 切深色 → 重建后仍在配置页
+- `./gradlew assembleDebug` / `testDebugUnitTest` BUILD SUCCESSFUL
+
+### 10b. 输入框重做（本轮追加）
+
+- 从 M3 描边框（4dp 方角、浮动标签在描边上切出「缺口」）改为**无边框填充式**：
+  12dp 圆角、`input_background` 填充、描边宽度 0；聚焦反馈 = 浮动标签转为墨色。
+- 覆盖全部 8 个输入框（配置页 5 个 + 选项页 3 个，含「音色」下拉），
+  下拉行为通过布局属性 `app:endIconMode="dropdown_menu"` 声明。
+- 踩坑记录：`endIconMode` 的枚举值是 `dropdown_menu`（不是 `dropdown`），且不能在
+  style 资源里以原始字符串赋值（aapt2 报 `expected enum but got (raw string)`）。
+- 排查记录：深色截图中「扫码配对」按钮一度看似空白；经 uiautomator 文本属性 +
+  像素级裁剪比对，确认是**键盘弹出时按钮被输入法裁掉下半部分的截图假象**，
+  按钮本身在浅色（近黑文字 1996 px）与深色（近白文字 2094 px）下均正常。
+- 浅色 / 深色、静置 / 聚焦、下拉框逐屏截图核对；`docs/screenshots/` 页面图已全部刷新。
+
+## 11. Android Studio 兼容性（AGP 版本回退）
+
+**现象**：Android Studio 2025.3（`AI-253.32098`）打开项目报
+*"The project is using an incompatible version (AGP 9.4.1) of the Android Gradle plugin.
+Latest supported version is AGP 9.2.1"*，Gradle Sync 被拒。
+
+**原因**：项目初始提交（模板生成）就使用 AGP 9.4.1；该 Studio 版本内置的兼容表上限是 9.2.1。
+
+**处理**：`gradle/libs.versions.toml` 中 `agp = "9.4.1"` → `"9.2.1"`。其余不动：
+
+| 项 | 结果 |
+|---|---|
+| `optimization { enable = false }`（release） | AGP 9.2.1 支持，构建通过 |
+| `compileSdk { version = release(37) }` 新 DSL | AGP 9.2.1 支持 |
+| Gradle wrapper | 保持 9.6.0，与 AGP 9.2.1 组合构建通过 |
+| `./gradlew buildEnvironment` | 解析为 `com.android.tools.build:gradle:9.2.1` |
+| `assembleDebug` + `testDebugUnitTest` | BUILD SUCCESSFUL |
+| CI（`ubuntu-latest` + JDK 21 + wrapper） | 不受影响 |
+
+备选方案（未采用）：升级 Android Studio 到支持 AGP 9.4.1 的版本；届时可用 AGP Upgrade
+Assistant 再把版本提上去。
+
+## 12. 主页铺满与「音色」下拉重叠（本轮修复，已实测）
+
+### 12a. 控制台 WebView 上下留白
+
+**现象**：主页（官方 web 控制台）在会话列表与聊天视图上下都有明显空白——
+标题栏上方约 55px、输入框下方约 24px（CSS 像素），空间利用率差。
+
+**定位**：官方 web 端的 viewport 含 `viewport-fit=cover`，页面按
+`env(safe-area-inset-*)` 留白；而 WebView 被 App 顶栏/底栏夹在中间，系统栏
+inset 本应由外层布局消化，WebView 却仍把状态栏/导航栏高度报为安全区
+（实测 `safe-area-inset-top` = 55px、`bottom` = 24px）。
+
+**修复**：对 WebView 消费窗口 inset
+（`ViewCompat.setOnApplyWindowInsetsListener(web) { _, _ -> CONSUMED }`），
+安全区归零，官方页面不再重复留白。
+
+**证据**（模拟器 Pixel 9a，Android 17，WebView 153）：
+- 修复前 CDP 探针：`safeTop=55px safeBottom=24px`，`header` 计算
+  `padding-top:55px`；修复后：`safeTop=0px safeBottom=0px`，
+  `header` `padding-top:0px`。
+- 截图：`docs/screenshots/07-console-home.png`（列表页）与聊天视图均上下贴满；
+  键盘弹出时输入框仍正常上移（IME padding 不受影响）。
+- 定位工具：debug 构建启用 WebView 调试（`setWebContentsDebuggingEnabled`），
+  经 `adb forward` + CDP `Runtime.evaluate` 读取页面盒模型；诊断探针不随
+  release 构建发布。
+
+### 12b. 「音色」下拉标签与值重叠
+
+**现象**：选项页「音色（切换即试听）」的浮动标签与选中值叠在一起，
+输入区高度只有 48dp（正常 56dp）。
+
+**定位**：`MaterialAutoCompleteTextView` 放在普通
+`Widget.Material3.TextInputLayout.FilledBox` 里时，TextInputLayout 的
+`materialThemeOverlay` 指向 TextInputEditText 的子样式，下拉子控件拿不到
+自己的子样式（`autoCompleteTextViewStyle`），标签不收缩。
+
+**修复**：新增 `Widget.Opencode.TextInput.Dropdown`（继承普通样式，仅把
+`materialThemeOverlay` 换成
+`ThemeOverlay.Material3.AutoCompleteTextView.FilledBox` 并声明
+`endIconMode=dropdown_menu`），「音色」框改用它。这也是 Material 对 exposed
+dropdown 的官方做法。
+
+**证据**：浅色 / 深色下标签正确缩小、值与箭头对齐；下拉菜单四项完整、选中项
+高亮；选择后重启 App 仍保持（持久化正常）。截图：
+`docs/screenshots/options-voice.png`、`docs/screenshots/05-voice-menu.png`。
+
+## 13. 权限全开时的「需要授权」误报（本轮修复，已实测）
+
+**现象**：用户把权限全部授予（自动批准）后，任务并不会卡住，但手机仍弹出
+「需要授权」提醒。
+
+**定位**：对真实服务抓包（OpenCode 2.0.22）确认，自动批准不会省掉事件——
+`permission.asked` 照常发出，随后立即跟上 `permission.replied`：
+
+```
+permission.asked   {"id":"per_…","sessionID":"…","action":"external_directory",
+                    "resources":["…/*"],"source":{…}}
+permission.replied {"sessionID":"…","requestID":"per_…","reply":"once"}
+```
+
+官方 web 客户端的 autoApprove 模式（`opencode run --auto` 同理）就是监听
+`permission.asked` 并立刻回复。旧实现一见 `asked` 就提醒，于是误报。
+
+**修复**：`permission.asked` 先交给 `PermissionGate` 挂起，2 秒宽限期内收到同一
+`requestID` 的 `permission.replied` 就取消；到期仍未回复才提醒
+（`NotifyService.holdPermissionAlert` / `dropPermissionAlert`）。
+`notified` 去重集合改为 `Collections.synchronizedSet`，因为延迟检查跑在
+service scope 上，与 SSE 线程并发。
+
+**证据**：
+- 单元测试 `PermissionGateTest`：asked/replied/fired、重复 ask 只排一次、
+  未知 reply 忽略、并发请求互不干扰。
+- 模拟器 + 真实服务：`opencode run --auto` 触发权限 → App 日志
+  `permission … replied within the grace period; no alert`，通知栏无「需要授权」。
+- 模拟器 + 受控 mock 服务（`POST /control` 向 `/api/event` 注入事件）：
+  - 只发 `permission.asked` → 约 2 秒后日志
+    `event permission.asked -> PERMISSION · external_directory · …`，
+    通知栏出现「需要授权」；
+  - `asked` 后 0.3 秒发 `replied` → 日志
+    `answered within the grace period; no alert`，通知栏无提醒。
+
+

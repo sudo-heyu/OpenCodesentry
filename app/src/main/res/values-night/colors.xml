@@ -1,38 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Brighter indicators so they stay legible on a dark surface. -->
-    <color name="state_ok">#6DD58C</color>
-    <color name="state_bad">#FFB4AB</color>
-    <color name="state_idle">#8E9099</color>
+    <color name="state_ok">#5BC08C</color>
+    <color name="state_bad">#EE8A80</color>
+    <color name="state_idle">#7C818A</color>
 
-    <!-- Dark app surfaces (see values/colors.xml). Cards and bars sit a step
-         above the page so the hierarchy survives the mode flip. -->
-    <color name="app_background">#0F1014</color>
-    <color name="app_surface">#1A1B20</color>
-    <color name="app_surface_muted">#23252B</color>
-    <color name="app_outline">#2C2E35</color>
+    <!-- Dark flat surfaces (see values/colors.xml). -->
+    <color name="app_background">#0F1012</color>
+    <color name="app_surface">#151619</color>
+    <color name="app_surface_muted">#1D1E22</color>
+    <color name="app_outline">#26272B</color>
 
-    <!-- Dark fallback scheme (see values/colors.xml). -->
-    <color name="m3_primary">#AEC6FF</color>
-    <color name="m3_on_primary">#002E69</color>
-    <color name="m3_primary_container">#004494</color>
-    <color name="m3_on_primary_container">#D9E2FF</color>
+    <!-- Filled text fields: one step above the page so the box reads. -->
+    <color name="input_background">#1D1F23</color>
 
-    <color name="m3_secondary">#BEC6DC</color>
-    <color name="m3_on_secondary">#282F42</color>
-    <color name="m3_secondary_container">#3E4759</color>
-    <color name="m3_on_secondary_container">#DAE2F9</color>
+    <!-- Dark "ink" scheme: near-white accent on near-black neutrals. -->
+    <color name="m3_primary">#F0F0F2</color>
+    <color name="m3_on_primary">#1A1B1E</color>
+    <color name="m3_primary_container">#2E2F34</color>
+    <color name="m3_on_primary_container">#F0F0F2</color>
 
-    <color name="m3_surface">#111318</color>
-    <color name="m3_on_surface">#E3E2E9</color>
-    <color name="m3_surface_variant">#44464F</color>
-    <color name="m3_on_surface_variant">#C4C6D0</color>
-    <color name="m3_outline">#8E9099</color>
-    <color name="m3_outline_variant">#44464F</color>
+    <color name="m3_secondary">#A8ACB4</color>
+    <color name="m3_on_secondary">#202226</color>
+    <color name="m3_secondary_container">#2A2C31</color>
+    <color name="m3_on_secondary_container">#E6E7E9</color>
 
-    <color name="m3_surface_container_lowest">#0C0E13</color>
-    <color name="m3_surface_container_low">#191C20</color>
-    <color name="m3_surface_container">#1D2024</color>
-    <color name="m3_surface_container_high">#282A2F</color>
-    <color name="m3_surface_container_highest">#33353A</color>
+    <color name="m3_surface">#0F1012</color>
+    <color name="m3_on_surface">#E9EAEC</color>
+    <color name="m3_surface_variant">#24262A</color>
+    <color name="m3_on_surface_variant">#9CA0A8</color>
+    <color name="m3_outline">#7C818A</color>
+    <color name="m3_outline_variant">#26272B</color>
+
+    <color name="m3_surface_container_lowest">#0F1012</color>
+    <color name="m3_surface_container_low">#17181B</color>
+    <color name="m3_surface_container">#1D1E22</color>
+    <color name="m3_surface_container_high">#232429</color>
+    <color name="m3_surface_container_highest">#292A2F</color>
 </resources>

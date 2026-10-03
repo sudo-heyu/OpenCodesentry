@@ -2,40 +2,24 @@
 <resources>
 
     <!--
-      A card groups one topic on a page. Filled rather than elevated: the page
-      background is the "lowest" surface, so a container-low card reads as a
-      distinct panel in both light and dark. A hairline outline keeps the edges
-      crisp without the heaviness of a shadow.
+      Section header: a quiet uppercase-like label that divides a flat page.
+      No accent bar, no panel — hierarchy comes from type and hairlines.
     -->
-    <style name="CardContainer">
+    <style name="SectionTitle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">@dimen/card_gap</item>
-        <item name="cardCornerRadius">@dimen/card_corner</item>
-        <item name="cardElevation">0dp</item>
-        <item name="cardBackgroundColor">@color/app_surface</item>
-        <item name="strokeWidth">1dp</item>
-        <item name="strokeColor">@color/app_outline</item>
+        <item name="android:layout_marginTop">@dimen/section_top_gap</item>
+        <item name="android:layout_marginBottom">@dimen/section_title_bottom</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelMedium</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:letterSpacing">0.06</item>
     </style>
 
-    <!-- Title at the top of a card, led by a small primary accent bar. -->
-    <style name="CardTitle">
+    <!-- One-line explanation under a section title. -->
+    <style name="SectionNote">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginBottom">6dp</item>
-        <item name="android:letterSpacing">0.02</item>
-        <item name="android:drawableStart">@drawable/card_accent</item>
-        <item name="android:drawablePadding">8dp</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
-        <item name="android:textColor">?attr/colorPrimary</item>
-    </style>
-
-    <!-- One-line explanation under a card title. -->
-    <style name="CardSubtitle">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
         <item name="android:textAppearance">?attr/textAppearanceBodySmall</item>
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
     </style>
@@ -55,31 +39,28 @@
     <style name="RowTitle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
     <style name="RowSubtitle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">2dp</item>
-        <item name="android:lineSpacingExtra">1dp</item>
+        <item name="android:layout_marginTop">1dp</item>
         <item name="android:textAppearance">?attr/textAppearanceBodySmall</item>
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
     </style>
 
-    <!-- Hairline rule used inside a card to separate a header from its rows. -->
+    <!-- Hairline between flat rows. -->
     <style name="Divider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
-        <item name="android:layout_marginTop">6dp</item>
-        <item name="android:layout_marginBottom">6dp</item>
         <item name="android:background">@color/app_outline</item>
     </style>
 
     <!--
-      Pill in the self-check list. The background is tinted at runtime to match
-      the state colour, so the accent reads as a chip rather than plain text.
+      Small state chip. Tinted at runtime with the state colour, so it reads as
+      a compact label rather than a button.
     -->
     <style name="StatusChip">
         <item name="android:layout_width">wrap_content</item>
@@ -99,7 +80,7 @@
     <style name="StatLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodySmall</item>
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
     </style>
 
@@ -110,7 +91,8 @@
         <item name="android:layout_weight">1</item>
         <item name="android:layout_marginStart">16dp</item>
         <item name="android:gravity">end</item>
-        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodySmall</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
     <!-- Compact bottom bar label: small, quiet, no Material letter-spacing. -->
@@ -121,9 +103,8 @@
 
     <!--
       Bottom bar with no active-indicator pill: the selected tab is expressed
-      by tint alone (see @color/nav_item_tint), which is the simpler, flatter
-      treatment. A zero-sized transparent indicator keeps the view's own layout
-      maths intact while drawing nothing.
+      by tint alone (see @color/nav_item_tint). A zero-sized transparent
+      indicator keeps the view's own layout maths intact while drawing nothing.
     -->
     <style name="NavActiveIndicator">
         <item name="android:width">0dp</item>
@@ -132,10 +113,59 @@
     </style>
 
     <style name="PreviewButton">
-        <item name="android:layout_width">40dp</item>
-        <item name="android:layout_height">40dp</item>
-        <item name="android:padding">8dp</item>
+        <item name="android:layout_width">36dp</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:padding">7dp</item>
         <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
         <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <!--
+      Buttons: Material 3's fully-rounded pills read playful; a 10dp corner
+      keeps the same component behaviour with a calmer, more deliberate shape.
+    -->
+    <style name="ShapeAppearance.Opencode.Button" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">10dp</item>
+    </style>
+
+    <style name="Widget.Opencode.Button" parent="Widget.Material3.Button">
+        <item name="shapeAppearance">@style/ShapeAppearance.Opencode.Button</item>
+    </style>
+
+    <style name="Widget.Opencode.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="shapeAppearance">@style/ShapeAppearance.Opencode.Button</item>
+    </style>
+
+    <style name="Widget.Opencode.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="shapeAppearance">@style/ShapeAppearance.Opencode.Button</item>
+    </style>
+
+    <!--
+      Modern text field: a filled 12dp rounded box with no border at all.
+      Focus is expressed by the floating label turning ink — no outline and no
+      label "notch", which is what makes Material's outlined box read dated.
+    -->
+    <style name="Widget.Opencode.TextInput" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="boxBackgroundColor">@color/input_background</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="android:textColorHint">?attr/colorOnSurfaceVariant</item>
+        <item name="hintTextColor">?attr/colorPrimary</item>
+    </style>
+
+    <!--
+      Same filled box, but for an exposed dropdown. Material routes the
+      MaterialAutoCompleteTextView through a dedicated theme overlay; without
+      it the child misses the text-field child style and the floating label
+      overlaps the selected value.
+    -->
+    <style name="Widget.Opencode.TextInput.Dropdown" parent="Widget.Opencode.TextInput">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.Material3.AutoCompleteTextView.FilledBox</item>
+        <item name="endIconMode">dropdown_menu</item>
     </style>
 </resources>

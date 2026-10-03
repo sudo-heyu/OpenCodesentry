@@ -2,11 +2,35 @@
 <resources>
     <string name="app_name">OpenCode 通知</string>
 
+    <string name="tab_home">主页</string>
     <string name="tab_status">状态</string>
     <string name="tab_options">选项</string>
     <string name="tab_config">配置</string>
 
     <string name="help_title">使用说明</string>
+
+    <!-- 主页 / 控制台 -->
+    <string name="console_setup_title">连接你的电脑</string>
+    <string name="console_setup_body">在电脑上运行桥接并加上 --pair，屏幕上会出现一个配对二维码；\n扫描后即可进入 OpenCode 控制台，也会自动配好提醒服务。\n\npython3 tools/bridge/opencode-bridge.py --pair</string>
+    <string name="console_scan">扫码配对</string>
+    <string name="console_retry">重试连接</string>
+    <string name="console_unreachable_title">连不上电脑</string>
+    <string name="console_unreachable_body">请确认电脑端桥接正在运行，且手机已连接 Tailscale。\n\n也可以到「配置」页手动填写地址和密码。</string>
+    <string name="console_pair_ok">配对成功，已自动配好提醒服务</string>
+
+    <!-- 扫码界面 -->
+    <string name="scan_title">扫描配对二维码</string>
+    <string name="scan_hint">对准电脑上显示的配对二维码</string>
+    <string name="scan_invalid">这不是配对二维码，请扫描电脑端 --pair 生成的二维码</string>
+    <string name="scan_permission">需要相机权限才能扫描二维码</string>
+    <string name="scan_no_camera">设备上没有可用的相机，请在「配置」页手动填写</string>
+    <string name="scan_close">关闭</string>
+
+    <!-- 配置页配对状态 -->
+    <string name="config_pair_scan">扫码配对（推荐）</string>
+    <string name="config_pair_none">推荐直接在电脑端生成二维码，用「主页」或上面的按钮扫码配对；也可以手动填写下方凭据。</string>
+    <string name="config_pair_valid">扫码凭据：有效至 %1$s</string>
+    <string name="config_pair_expired">扫码凭据已过期（%1$s），请重新扫码</string>
 
     <string name="accessibility_service_description">让 OpenCode 守护在后台被系统清理后自动恢复。此服务不读取屏幕内容，也不响应任何界面事件。</string>
 </resources>

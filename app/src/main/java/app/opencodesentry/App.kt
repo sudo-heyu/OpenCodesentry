@@ -1,15 +1,10 @@
 package app.opencodesentry
 
 import android.app.Application
-import com.google.android.material.color.DynamicColors
 
 /**
- * Applies Material You dynamic colour when the platform supports it, so the
- * three screens pick up the device wallpaper palette instead of a fixed one.
+ * The palette is fixed on purpose ("ink" scheme, see values/colors.xml):
+ * Material You is not applied, so the app looks the same on every wallpaper
+ * and the status colours stay unambiguous.
  */
-class App : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        DynamicColors.applyToActivitiesIfAvailable(this)
-    }
-}
+class App : Application()

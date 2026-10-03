@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Flat config page: form fields and a quiet pairing block, no panels. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -16,141 +17,134 @@
         android:paddingEnd="@dimen/screen_h_padding"
         android:paddingBottom="@dimen/screen_bottom_padding">
 
-        <!-- ============ Tailscale 配对 ============ -->
-        <com.google.android.material.card.MaterialCardView
-            style="@style/CardContainer"
-            android:layout_marginTop="8dp">
+        <!-- ============ 连接 ============ -->
+        <TextView
+            style="@style/SectionTitle"
+            android:layout_marginTop="14dp"
+            android:text="连接" />
 
-            <LinearLayout
+        <TextView
+            style="@style/SectionNote"
+            android:text="手机和电脑都接入同一个 tailnet" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilPhoneIp"
+            style="@style/Widget.Opencode.TextInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:hint="安卓端 IP"
+            app:endIconMode="none">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPhoneIp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/card_padding">
+                android:inputType="textUri" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <TextView
-                    style="@style/CardTitle"
-                    android:text="Tailscale 配对" />
+        <TextView
+            android:id="@+id/tvPhoneIpState"
+            style="@style/RowSubtitle"
+            android:layout_marginTop="3dp"
+            android:textSize="12sp" />
 
-                <TextView
-                    style="@style/CardSubtitle"
-                    android:text="手机和电脑都接入同一个 tailnet 后，填好两端地址即可。" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDetectIp"
+            style="@style/Widget.Opencode.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="自动检测本机地址" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilPhoneIp"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="① 安卓端 IP"
-                    app:endIconMode="none">
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilHost"
+            style="@style/Widget.Opencode.TextInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="电脑端 IP（或 MagicDNS 名）"
+            app:endIconMode="none"
+            app:helperText="跑 OpenCode 的那台机器，例：100.101.102.103 或 my-mac">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etPhoneIp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textUri" />
-                </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etHost"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textUri" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <TextView
-                    android:id="@+id/tvPhoneIpState"
-                    style="@style/RowSubtitle"
-                    android:layout_marginTop="4dp"
-                    android:textSize="12sp" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilPort"
+            style="@style/Widget.Opencode.TextInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="端口"
+            app:endIconMode="none"
+            app:helperText="桥接监听的端口，默认 4096">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnDetectIp"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:text="自动检测本机地址" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilHost"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:hint="② 电脑端 IP（或 MagicDNS 名）"
-                    app:endIconMode="none"
-                    app:helperText="跑 OpenCode 的那台机器，例：100.101.102.103 或 my-mac">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etHost"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textUri" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilPort"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:hint="端口"
-                    app:endIconMode="none"
-                    app:helperText="桥接或 Tailscale Serve 监听的端口，默认 4096">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etPort"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPort"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- ============ 访问凭据 ============ -->
-        <com.google.android.material.card.MaterialCardView style="@style/CardContainer">
+        <TextView
+            style="@style/SectionTitle"
+            android:text="访问凭据" />
 
-            <LinearLayout
+        <TextView
+            android:id="@+id/tvPairState"
+            style="@style/SectionNote"
+            android:text="推荐直接在电脑端生成二维码，用「主页」或下面的按钮扫码配对。" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPairScan"
+            style="@style/Widget.Opencode.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="10dp"
+            android:text="@string/config_pair_scan" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilUser"
+            style="@style/Widget.Opencode.TextInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="用户名"
+            app:endIconMode="none">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etUser"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/card_padding">
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <TextView
-                    style="@style/CardTitle"
-                    android:text="访问凭据" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilPassword"
+            style="@style/Widget.Opencode.TextInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="密码"
+            app:endIconMode="password_toggle"
+            app:helperText="电脑上 ~/.config/opencode/service.json 里的 password">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilUser"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="用户名"
-                    app:endIconMode="none">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etUser"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="text" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilPassword"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:hint="密码"
-                    app:endIconMode="password_toggle"
-                    app:helperText="电脑上 ~/.config/opencode/service.json 里的 password">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etPassword"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textPassword" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
@@ -162,7 +156,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnTest"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.Opencode.Button.Outlined"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -171,29 +165,20 @@
         </LinearLayout>
 
         <!-- ============ 检测结果 ============ -->
-        <com.google.android.material.card.MaterialCardView style="@style/CardContainer">
+        <TextView
+            style="@style/SectionTitle"
+            android:text="检测结果" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/card_padding">
-
-                <TextView
-                    style="@style/CardTitle"
-                    android:text="检测结果" />
-
-                <TextView
-                    android:id="@+id/tvStatus"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_code"
-                    android:fontFamily="monospace"
-                    android:padding="12dp"
-                    android:text="尚未检测"
-                    android:textIsSelectable="true"
-                    android:textSize="12sp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/bg_code"
+            android:fontFamily="monospace"
+            android:padding="12dp"
+            android:text="尚未检测"
+            android:textIsSelectable="true"
+            android:textSize="12sp" />
     </LinearLayout>
 </ScrollView>

@@ -137,6 +137,17 @@ class Settings(context: Context) {
         set(value) = prefs.edit { putInt(KEY_VOLUME, value.coerceIn(0, 100)) }
 
     /**
+     * Wall-clock expiry of a credential obtained by scanning the pairing QR.
+     *
+     * OpenCode session tokens embed their expiry as the first ten digits of
+     * the token itself, so the app can warn before alerts silently stop.
+     * 0 means "not paired by QR" (a hand-entered password never expires).
+     */
+    var pairExpiresAt: Long
+        get() = prefs.getLong(KEY_PAIR_EXPIRES_AT, 0L)
+        set(value) = prefs.edit { putLong(KEY_PAIR_EXPIRES_AT, value) }
+
+    /**
      * Session IDs OpenCode considered busy at the last check. Used to notice
      * completions that happened while the live stream was down.
      */
@@ -238,6 +249,7 @@ class Settings(context: Context) {
         private const val KEY_ALERT_MAX_SECONDS = "alert_max_seconds"
         private const val KEY_VOLUME = "volume"
         private const val KEY_LAST_ACTIVE = "last_active_sessions"
+        private const val KEY_PAIR_EXPIRES_AT = "pair_expires_at"
 
         private const val KEY_GUARD_STARTS = "diag_guard_starts"
         private const val KEY_GUARD_STARTED_AT = "diag_guard_started_at"
